@@ -19,6 +19,23 @@
       "favicon": "https://app.nexorealm.org/assets/logo.png"
     },
     {
+      "id": "blox-nexorealm",
+      "name": "Bloxcore",
+      "url": "https://blox.nexorealm.org",
+      "category": "Gaming",
+      "icon": "layout-dashboard",
+      "status": "live",
+      "featured": true,
+      "title": "Bloxfruits \u2014 players",
+      "description": "A website for bloxfruits players to trade, trial, giveaways etc.",
+      "tags": [
+        "free",
+        "gaming",
+        "no-ads"
+      ],
+      "favicon": "https://blox.nexorealm.org/assets/logo.png"
+    },
+    {
       "id": "boost-nexorealm",
       "name": "Next Boost",
       "url": "https://boost.nexorealm.org",

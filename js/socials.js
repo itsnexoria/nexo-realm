@@ -15,9 +15,11 @@
   "use strict";
 
   function getAssetPrefix() {
-    var depth = window.location.pathname.split("/").filter(Boolean);
-    var isRoot = depth.length === 0 || (depth.length === 1 && depth[0].includes("."));
-    return isRoot ? "" : "../";
+    var segments = window.location.pathname.split("/").filter(Boolean);
+    if (segments.length && segments[segments.length - 1].indexOf(".") !== -1) {
+      segments.pop();
+    }
+    return segments.length ? new Array(segments.length + 1).join("../") : "";
   }
 
   var ASSET_PREFIX = getAssetPrefix();

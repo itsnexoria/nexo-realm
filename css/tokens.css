@@ -56,9 +56,9 @@
   --space-4: 1rem;
   --space-5: 1.5rem;
   --space-6: 2rem;
-  --space-7: 3rem;
-  --space-8: 4.5rem;
-  --space-9: 7rem;
+  --space-7: clamp(2rem, 1.6rem + 1.6vw, 3rem);
+  --space-8: clamp(2.25rem, 1.5rem + 3vw, 4.5rem);
+  --space-9: clamp(2.75rem, 1.6rem + 4.6vw, 7rem);
 
   /* ---------- Shape / motion ---------- */
   --radius-s: 8px;

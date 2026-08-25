@@ -15,11 +15,13 @@
   var DATA_URL = ASSET_PREFIX + "data/projects.json";
 
   function getAssetPrefix() {
-    // Pages live at /, /projects/, /about/, etc. so every shared asset is
-    // one level up from any non-root page.
-    var depth = window.location.pathname.split("/").filter(Boolean);
-    var isRoot = depth.length === 0 || (depth.length === 1 && depth[0].includes("."));
-    return isRoot ? "" : "../";
+    // Pages can live at any depth (/, /projects/, /projects/nexo-hub/, etc.)
+    // so walk up one "../" per path segment rather than assuming one level.
+    var segments = window.location.pathname.split("/").filter(Boolean);
+    if (segments.length && segments[segments.length - 1].indexOf(".") !== -1) {
+      segments.pop(); // drop a trailing filename like index.html
+    }
+    return segments.length ? new Array(segments.length + 1).join("../") : "";
   }
 
   function icon(name, attrs) {
