@@ -1,19 +1,29 @@
 /* ==========================================================================
    NEXO REALM — Design Tokens
-   Dark theme is the default brand expression. Light theme overrides via
-   [data-theme="light"] on <html>. All colors, type, spacing, motion timing
-   live here so the rest of the CSS never hardcodes a value twice.
+   Direction: "Network Console" — the realm as a live systems board, not a
+   generic SaaS hero. Dark theme is the default brand expression. Light
+   theme overrides via [data-theme="light"] on <html>. All colors, type,
+   spacing, motion timing live here so the rest of the CSS never hardcodes
+   a value twice.
    ========================================================================== */
 
 :root {
-  /* ---------- Brand red ramp (sampled from the Nexo Realm mark) ---------- */
-  --red-900: #4a0810;
+  /* ---------- Brand red ramp (signal color — status, accents, CTAs) ---------- */
+  --red-900: #430a12;
   --red-700: #7a0d16;
   --red-600: #a80f1c;
   --red-500: #e31221; /* primary */
-  --red-400: #ff2b3d; /* glow / gradient top */
+  --red-400: #ff2b3d; /* signal / gradient top */
   --red-300: #ff6b74;
   --red-200: #ffb3b8;
+
+  /* ---------- Status ramp (server-browser convention: on / queued / off) ---------- */
+  --status-on: #35d488;
+  --status-on-dim: rgba(53, 212, 136, 0.14);
+  --status-warn: #ffb648;
+  --status-warn-dim: rgba(255, 182, 72, 0.14);
+  --status-off: #8b8891;
+  --status-off-dim: rgba(139, 136, 145, 0.14);
 
   /* ---------- Surfaces (dark, default) ---------- */
   --bg: #0a0a0c;
@@ -32,12 +42,17 @@
 
   /* ---------- Gradients / glow ---------- */
   --grad-core: linear-gradient(135deg, var(--red-400), var(--red-700));
-  --grad-hero: radial-gradient(60% 60% at 50% 35%, rgba(227, 18, 33, 0.22), transparent 70%);
+  --grad-hero: radial-gradient(60% 60% at 50% 0%, rgba(227, 18, 33, 0.16), transparent 70%);
   --glow-red: 0 0 60px rgba(227, 18, 33, 0.35);
   --glow-red-soft: 0 0 32px rgba(227, 18, 33, 0.2);
 
-  /* ---------- Type ---------- */
-  --font-display: "Space Grotesk", "Segoe UI", system-ui, sans-serif;
+  /* ---------- Type ----------
+     Display: Chakra Petch — angular, technical, gaming-console DNA; used
+     with restraint (headlines + a handful of numerals) so it stays sharp.
+     Body: Inter — a quiet workhorse, never competes with the display face.
+     Mono: JetBrains Mono — carries the "console" register: status text,
+     nav labels, timestamps, tags. Used far more here than a typical site. */
+  --font-display: "Chakra Petch", "Segoe UI", system-ui, sans-serif;
   --font-body: "Inter", "Segoe UI", system-ui, sans-serif;
   --font-mono: "JetBrains Mono", "SFMono-Regular", Consolas, monospace;
 
@@ -47,7 +62,7 @@
   --step-2: clamp(1.4rem, 1.28rem + 0.6vw, 1.7rem);
   --step-3: clamp(1.8rem, 1.55rem + 1.2vw, 2.4rem);
   --step-4: clamp(2.4rem, 1.95rem + 2.2vw, 3.6rem);
-  --step-5: clamp(3rem, 2.2rem + 4vw, 5rem);
+  --step-5: clamp(2.8rem, 2.1rem + 3.6vw, 4.6rem);
 
   /* ---------- Spacing scale ---------- */
   --space-1: 0.25rem;
@@ -60,35 +75,45 @@
   --space-8: clamp(2.25rem, 1.5rem + 3vw, 4.5rem);
   --space-9: clamp(2.75rem, 1.6rem + 4.6vw, 7rem);
 
-  /* ---------- Shape / motion ---------- */
-  --radius-s: 8px;
-  --radius-m: 14px;
-  --radius-l: 22px;
+  /* ---------- Shape / motion ----------
+     Radii pulled in from the old pill-heavy system to a tighter, more
+     rectangular "panel" language — slab buttons and squared status chips
+     read as instrumentation, not a marketing site. */
+  --radius-s: 5px;
+  --radius-m: 8px;
+  --radius-l: 12px;
   --radius-pill: 999px;
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
   --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
-  --dur-fast: 160ms;
-  --dur-med: 320ms;
-  --dur-slow: 640ms;
+  --dur-fast: 140ms;
+  --dur-med: 280ms;
+  --dur-slow: 560ms;
 
   --container: 1180px;
-  --nav-h: 76px;
+  --nav-h: 68px;
 }
 
 [data-theme="light"] {
-  --bg: #faf9f7;
+  --bg: #f7f6f3;
   --bg-raised: #ffffff;
   --bg-elevated: #ffffff;
-  --bg-elevated-2: #f2f0ee;
-  --border: rgba(20, 16, 18, 0.09);
-  --border-strong: rgba(20, 16, 18, 0.18);
-  --scrim: rgba(250, 249, 247, 0.7);
+  --bg-elevated-2: #efeeea;
+  --border: rgba(20, 16, 18, 0.1);
+  --border-strong: rgba(20, 16, 18, 0.2);
+  --scrim: rgba(247, 246, 243, 0.72);
 
-  --ink: #17161a;
-  --ink-dim: #5c5a62;
-  --ink-faint: #8b8890;
+  --ink: #16151a;
+  --ink-dim: #57555e;
+  --ink-faint: #86838d;
 
-  --grad-hero: radial-gradient(60% 60% at 50% 35%, rgba(227, 18, 33, 0.12), transparent 70%);
-  --glow-red: 0 0 50px rgba(227, 18, 33, 0.18);
-  --glow-red-soft: 0 0 24px rgba(227, 18, 33, 0.12);
+  --status-on: #1a9a5c;
+  --status-on-dim: rgba(26, 154, 92, 0.1);
+  --status-warn: #b4700f;
+  --status-warn-dim: rgba(180, 112, 15, 0.1);
+  --status-off: #7c7a82;
+  --status-off-dim: rgba(124, 122, 130, 0.1);
+
+  --grad-hero: radial-gradient(60% 60% at 50% 0%, rgba(227, 18, 33, 0.1), transparent 70%);
+  --glow-red: 0 0 50px rgba(227, 18, 33, 0.16);
+  --glow-red-soft: 0 0 24px rgba(227, 18, 33, 0.1);
 }

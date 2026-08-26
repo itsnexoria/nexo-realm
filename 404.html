@@ -48,8 +48,8 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="preconnect" href="https://www.google.com" />
 
-  <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" />
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" />
+  <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" />
 
   <link rel="preload" as="style" href="css/tokens.css" />
   <link rel="stylesheet" href="css/tokens.css" />
@@ -136,16 +136,19 @@
 
   <main id="main">
 
-    <section class="error-page" data-particles="10">
-      <div class="orbit" style="max-width:220px;margin-bottom:2rem;" role="presentation">
-        <div class="orbit__ring orbit__ring--2"></div>
-        <div class="orbit__ring"></div>
-        <div class="orbit__satellite-wrap orbit__satellite-wrap--a"><span class="orbit__satellite"></span></div>
-        <div class="orbit__satellite-wrap orbit__satellite-wrap--b"><span class="orbit__satellite"></span></div>
-        <div class="orbit__core"></div>
+    <section class="error-page">
+      <div class="console-panel" style="max-width:380px;margin-bottom:2rem;text-align:left;" role="img" aria-label="Terminal panel showing a failed connection">
+        <div class="console-panel__bar">
+          <div class="console-panel__dots"><span></span><span></span><span></span></div>
+          <span class="console-panel__bar-label">nexorealm &mdash; status</span>
+        </div>
+        <div style="padding:1.1rem 1.25rem;font-family:var(--font-mono);font-size:0.82rem;line-height:1.7;">
+          <div style="color:var(--ink-dim);">$ connect nexorealm://requested-page</div>
+          <div style="color:var(--status-warn);margin-top:0.35rem;">&rarr; 404 NOT_FOUND</div>
+        </div>
       </div>
       <div class="error-page__code">404</div>
-      <h1 style="margin-top:1rem;">This orbit doesn't exist.</h1>
+      <h1 style="margin-top:1rem;">This route doesn't exist.</h1>
       <p class="lede" style="margin-top:1rem;margin-inline:auto;">The page you're looking for has drifted out of the realm. Let's get you back to a known project.</p>
       <div class="hero__actions" style="justify-content:center;margin-top:2rem;">
         <a class="btn btn--primary" href="">Back to home <svg class="icon" aria-hidden="true" width="16" height="16"><use href="icons/lucide-sprite.svg#arrow-up-right"></use></svg></a>

@@ -48,8 +48,8 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="preconnect" href="https://www.google.com" />
 
-  <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" />
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" />
+  <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" />
 
   <link rel="preload" as="style" href="css/tokens.css" />
   <link rel="stylesheet" href="css/tokens.css" />
@@ -146,11 +146,12 @@
 
   <main id="main">
 
-    <section class="hero" data-parallax data-particles="16">
+    <section class="hero">
       <div class="hero-grid"></div>
       <div class="hero-glow"></div>
       <div class="container hero__inner">
         <div class="reveal-stagger">
+          <div class="boot-line" data-boot-line="connected to nexorealm:// — 5 projects found"></div>
           <span class="eyebrow">The Nexo Ecosystem</span>
           <h1 class="hero__title">One realm.<br />An expanding<br /><span class="accent">universe of tools.</span></h1>
           <p class="lede hero__lede">Nexo Realm is the gateway that ties every current and future Nexo project, tool, and profile back to a single home &mdash; so nothing you build ever gets lost in a bookmark folder again.</p>
@@ -165,26 +166,26 @@
             <div><div class="stat__num" data-counter="1" data-suffix="/1">0</div><div class="stat__label">Solo-built</div></div>
           </div>
         </div>
-        <div class="hero__orbit-wrap reveal">
-          <div class="orbit" role="img" aria-label="Illustration of an orbital system representing the Nexo Realm ecosystem">
-            <div class="orbit__ring orbit__ring--3"></div>
-            <div class="orbit__ring orbit__ring--2"></div>
-            <div class="orbit__ring"></div>
-            <div class="orbit__satellite-wrap orbit__satellite-wrap--a"><span class="orbit__satellite"></span></div>
-            <div class="orbit__satellite-wrap orbit__satellite-wrap--b"><span class="orbit__satellite"></span></div>
-            <div class="orbit__satellite-wrap orbit__satellite-wrap--c"><span class="orbit__satellite"></span></div>
-            <div class="orbit__core"></div>
+        <div class="hero__panel-wrap reveal">
+          <div class="console-panel" role="img" aria-label="Live status panel listing current Nexo Realm projects">
+            <div class="console-panel__bar">
+              <div class="console-panel__dots"><span></span><span></span><span></span></div>
+              <span class="console-panel__bar-label">nexorealm &mdash; status</span>
+            </div>
+            <div class="console-panel__body" data-console-panel>
+              <div class="console-panel__row" aria-hidden="true" style="opacity:.5"><span class="console-panel__dot"></span><span class="console-panel__name">Loading&hellip;</span></div>
+            </div>
+            <div class="console-panel__footer">
+              <span>realm://all-systems</span>
+              <span>refreshed on load</span>
+            </div>
           </div>
         </div>
       </div>
     </section>
 
-    <section class="section section--tight">
-      <div class="container">
-        <div class="marquee">
-          <div class="marquee__track" data-marquee-track></div>
-        </div>
-      </div>
+    <section class="ticker">
+      <div class="ticker__track" data-marquee-track></div>
     </section>
 
     <section class="section" id="featured">
@@ -196,8 +197,8 @@
           </div>
           <a class="btn btn--ghost" href="projects/">All projects <svg class="icon" aria-hidden="true" width="16" height="16"><use href="icons/lucide-sprite.svg#chevrons-right"></use></svg></a>
         </div>
-        <div class="grid grid--3 reveal-stagger" data-featured-projects>
-          <div class="card project-card" aria-hidden="true" style="opacity:.5">Loading projects&hellip;</div>
+        <div class="project-row-list reveal-stagger" data-featured-projects>
+          <p aria-hidden="true" style="opacity:.5;font-family:var(--font-mono);font-size:.85rem;">Loading projects&hellip;</p>
         </div>
       </div>
     </section>

@@ -1,7 +1,7 @@
 /**
  * projects.js — single source of truth is /data/projects.json.
- * Renders: home "featured" grid + marquee + stats counters, and the full
- * Projects page grid with live search, category filter, and sorting.
+ * Renders: home "featured" rows + status ticker + stats counters, and the
+ * full Projects page list with live search, category filter, and sorting.
  * Nothing here is hardcoded — add a project by editing the JSON only.
  *
  * Icons are self-hosted SVG sprite references (see /icons/lucide-sprite.svg)
@@ -33,18 +33,14 @@
   }
 
   /**
-   * "Live" status is checked for real, not just declared in JSON: it piggy-
-   * backs on the favicon request every card already makes (no extra network
-   * call). If the project's own domain answers, it's marked Online; if both
-   * favicon attempts fail, it's marked Unreachable. This is a lightweight
-   * reachability signal, not a full uptime monitor — the badge's tooltip
-   * says so plainly. `beta`/`soon` stay as manually-declared labels since
-   * they're not something a ping can measure.
+   * Status badges are declarative from projects.json (live / beta / soon) —
+   * not a real uptime check. The dot itself is drawn by CSS (.badge::before)
+   * so the markup here stays plain text.
    */
   function statusBadge(p) {
-    if (p.status === "beta") return '<span class="badge badge--beta"><span class="orbit-mini"><span class="orbit-mini__dot"></span></span>Beta</span>';
-    if (p.status === "soon") return '<span class="badge badge--soon"><span class="orbit-mini"><span class="orbit-mini__dot"></span></span>Coming soon</span>';
-    return '<span class="badge badge--live"><span class="orbit-mini"><span class="orbit-mini__dot"></span></span>Live</span>';
+    if (p.status === "beta") return '<span class="badge badge--beta">Beta</span>';
+    if (p.status === "soon") return '<span class="badge badge--soon">Coming soon</span>';
+    return '<span class="badge badge--live">Live</span>';
   }
 
   function faviconURL(p) {
@@ -82,30 +78,38 @@
     );
   }
 
-  function cardHTML(p) {
+  /**
+   * A project row reads like a line in a server browser: status, name and
+   * category, a description, tags, then a connect action on the right —
+   * the same shape used on Home, /projects/, and Showcase, because it's
+   * the same directory every time, just filtered differently.
+   */
+  function rowHTML(p) {
     var tags = (p.tags || [])
       .map(function (t) { return '<span class="tag">' + escapeHTML(t) + "</span>"; })
       .join("");
     var isSoon = p.status === "soon";
     var linkAttrs = isSoon ? "" : ' target="_blank" rel="noopener noreferrer"';
-    var href = isSoon ? "javascript:void(0)" : p.url;
 
     return (
-      '<article class="card project-card' + (isSoon ? " project-card--soon" : "") + '" data-name="' + escapeHTML(p.name.toLowerCase()) +
+      '<article class="project-row' + (isSoon ? " project-row--soon" : "") + '" data-name="' + escapeHTML(p.name.toLowerCase()) +
       '" data-category="' + escapeHTML((p.category || "").toLowerCase()) + '" data-status="' + p.status + '">' +
-      '<div class="project-card__top">' +
-      '<div class="project-card__icon">' + faviconImgHTML(p) + "</div>" +
+      '<div class="project-row__icon">' + faviconImgHTML(p) + "</div>" +
+      '<div class="project-row__info">' +
+      '<div class="project-row__title-line">' +
+      '<span class="project-row__name"><a href="' + ASSET_PREFIX + 'projects/' + escapeHTML(p.id) + '/">' + escapeHTML(p.name) + "</a></span>" +
       statusBadge(p) +
       "</div>" +
-      '<div><div class="project-card__name"><a href="' + ASSET_PREFIX + 'projects/' + escapeHTML(p.id) + '/">' + escapeHTML(p.name) + '</a></div><div class="project-card__category">' + escapeHTML(p.category || "") + "</div></div>" +
-      '<p class="project-card__desc">' + escapeHTML(p.description || "") + "</p>" +
-      '<div class="project-card__tags">' + tags + "</div>" +
-      '<div class="project-card__footer">' +
-      '<span class="tag" style="border:none;padding:0;color:var(--ink-faint)">' + escapeHTML(hostname(p.url)) + "</span>" +
-      (isSoon
-        ? '<span class="project-card__link" aria-disabled="true">Notify me ' + icon("bell") + "</span>"
-        : '<a class="project-card__link" href="' + href + '"' + linkAttrs + ">Visit " + icon("arrow-up-right") + "</a>") +
+      '<p class="project-row__desc">' + escapeHTML(p.description || "") + "</p>" +
+      '<div class="project-row__tags">' + tags + "</div>" +
       "</div>" +
+      '<div class="project-row__meta">' +
+      '<span class="project-row__category">' + escapeHTML(p.category || "") + "</span>" +
+      '<span class="project-row__host">' + escapeHTML(hostname(p.url)) + "</span>" +
+      "</div>" +
+      (isSoon
+        ? '<span class="project-row__action project-row__action--disabled" aria-disabled="true">Notify me ' + icon("bell") + "</span>"
+        : '<a class="project-row__action" href="' + p.url + '"' + linkAttrs + ">Visit " + icon("arrow-up-right") + "</a>") +
       "</article>"
     );
   }
@@ -120,29 +124,54 @@
     return div.innerHTML;
   }
 
+  /**
+   * The status ticker replaces the old logo marquee — a scrolling line of
+   * "NAME · STATUS" pairs, like a network operations board, instead of a
+   * carousel of little cards. Same JSON, much quieter on the page.
+   */
+  function tickerItemHTML(p) {
+    var statusWord = p.status === "beta" ? "Beta" : p.status === "soon" ? "Soon" : "Online";
+    return (
+      '<span class="ticker__item" data-status="' + p.status + '">' +
+      '<span class="ticker__dot"></span>' +
+      '<span class="ticker__name">' + escapeHTML(p.name) + "</span>" +
+      '<span class="ticker__word">' + statusWord + "</span>" +
+      "</span>"
+    );
+  }
+
+  /** Condensed row used only inside the hero console panel — status + name
+   *  + category, nothing else. It's the same feed as everywhere else, just
+   *  the shortest possible read of it. */
+  function consoleRowHTML(p) {
+    return (
+      '<div class="console-panel__row" data-status="' + p.status + '">' +
+      '<span class="console-panel__dot"></span>' +
+      '<span class="console-panel__name">' + escapeHTML(p.name) + "</span>" +
+      '<span class="console-panel__category">' + escapeHTML(p.category || "") + "</span>" +
+      "</div>"
+    );
+  }
+
   function renderHome(projects) {
     var featuredHost = document.querySelector("[data-featured-projects]");
-    var marqueeHost = document.querySelector("[data-marquee-track]");
+    var tickerHost = document.querySelector("[data-marquee-track]");
+    var consoleHost = document.querySelector("[data-console-panel]");
     var statProjects = document.querySelector("[data-stat-projects]");
     var statLive = document.querySelector("[data-stat-live]");
 
     var featured = projects.filter(function (p) { return p.featured; });
     if (featuredHost) {
       var list = featured.length ? featured : projects;
-      featuredHost.innerHTML = list.slice(0, 3).map(cardHTML).join("");
+      featuredHost.innerHTML = list.slice(0, 3).map(rowHTML).join("");
     }
-    if (marqueeHost) {
-      marqueeHost.innerHTML = projects
-        .map(function (p) {
-          return (
-            '<div class="card card--glass marquee-card">' +
-            '<div class="project-card__icon" style="margin-bottom:12px">' + faviconImgHTML(p) + "</div>" +
-            '<div class="project-card__name">' + escapeHTML(p.name) + "</div>" +
-            '<div class="project-card__category">' + escapeHTML(p.category || "") + "</div>" +
-            "</div>"
-          );
-        })
-        .join("");
+    if (tickerHost) {
+      // Duplicated once so the CSS animation (translateX -50%) loops seamlessly.
+      var items = projects.map(tickerItemHTML).join("");
+      tickerHost.innerHTML = items + items;
+    }
+    if (consoleHost) {
+      consoleHost.innerHTML = projects.slice(0, 5).map(consoleRowHTML).join("");
     }
     if (statProjects) statProjects.setAttribute("data-counter", String(projects.length));
     if (statLive) statLive.setAttribute("data-counter", String(projects.filter(function (p) { return p.status === "live"; }).length));
@@ -182,7 +211,7 @@
         return a.name.localeCompare(b.name);
       });
 
-      grid.innerHTML = filtered.map(cardHTML).join("");
+      grid.innerHTML = filtered.map(rowHTML).join("");
       grid.classList.toggle("visually-hidden", filtered.length === 0);
       if (emptyState) emptyState.hidden = filtered.length !== 0;
       attachFaviconFallbacks(grid);
@@ -217,7 +246,7 @@
     if (!host) return;
     var featured = projects.filter(function (p) { return p.featured; });
     var list = featured.length ? featured : projects;
-    host.innerHTML = list.map(cardHTML).join("");
+    host.innerHTML = list.map(rowHTML).join("");
     attachFaviconFallbacks(host);
   }
 

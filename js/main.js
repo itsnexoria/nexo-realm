@@ -1,7 +1,7 @@
 /**
  * main.js — shared interactive behavior for every page:
  * sticky nav state, mobile menu, scroll-reveal, animated counters,
- * ambient particles, button ripple, back-to-top, and page transition veil.
+ * button ripple, back-to-top, nav status pill, and the hero boot line.
  */
 (function () {
   "use strict";
@@ -83,13 +83,13 @@
     function animate(el) {
       var target = parseFloat(el.getAttribute("data-counter"));
       if (isNaN(target)) return;
+      var suffix = el.getAttribute("data-suffix") || "";
       if (reduceMotion) {
-        el.textContent = target.toLocaleString();
+        el.textContent = target.toLocaleString() + suffix;
         return;
       }
       var duration = 1400;
       var start = null;
-      var suffix = el.getAttribute("data-suffix") || "";
 
       function step(ts) {
         if (start === null) start = ts;
@@ -107,6 +107,7 @@
         function (entries) {
           entries.forEach(function (entry) {
             if (entry.isIntersecting) {
+              entry.target.setAttribute("data-counter-seen", "true");
               animate(entry.target);
               observer.unobserve(entry.target);
             }
@@ -116,32 +117,16 @@
       );
       counters.forEach(function (c) { observer.observe(c); });
     } else {
-      counters.forEach(animate);
+      counters.forEach(function (c) { c.setAttribute("data-counter-seen", "true"); animate(c); });
     }
-  }
 
-  /* ---------- Ambient particles (lightweight, CSS-driven) ---------- */
-  function initParticles() {
-    var hosts = document.querySelectorAll("[data-particles]");
-    if (!hosts.length || reduceMotion) return;
-
-    hosts.forEach(function (host) {
-      var count = parseInt(host.getAttribute("data-particles"), 10) || 14;
-      var frag = document.createDocumentFragment();
-      for (var i = 0; i < count; i++) {
-        var p = document.createElement("span");
-        p.className = "particle";
-        var size = 2 + Math.random() * 4;
-        p.style.width = size + "px";
-        p.style.height = size + "px";
-        p.style.left = Math.random() * 100 + "%";
-        p.style.bottom = "-10%";
-        p.style.setProperty("--drift", (Math.random() * 60 - 30) + "px");
-        p.style.animationDuration = 10 + Math.random() * 14 + "s";
-        p.style.animationDelay = Math.random() * 14 + "s";
-        frag.appendChild(p);
-      }
-      host.appendChild(frag);
+    // Project count / live count start as placeholders in the markup and
+    // only get their real value once projects.json loads (projects.js
+    // dispatches this once it has). If the counter already animated to the
+    // placeholder by then, re-run it now that data-counter holds the real
+    // number — otherwise the hero would permanently read "0 Projects".
+    document.addEventListener("nexo:counters-ready", function () {
+      document.querySelectorAll("[data-stat-projects][data-counter-seen], [data-stat-live][data-counter-seen]").forEach(animate);
     });
   }
 
@@ -163,13 +148,6 @@
     });
   }
 
-  /* ---------- Marquee track duplication (seamless loop) ---------- */
-  function initMarquee() {
-    document.querySelectorAll("[data-marquee-track]").forEach(function (track) {
-      track.innerHTML += track.innerHTML;
-    });
-  }
-
   /* ---------- Back to top ---------- */
   function initBackToTop() {
     document.querySelectorAll("[data-back-to-top]").forEach(function (btn) {
@@ -187,22 +165,48 @@
     });
   }
 
-  /* ---------- Mouse parallax on hero orbit ---------- */
-  function initParallax() {
-    var stage = document.querySelector("[data-parallax]");
-    if (!stage || reduceMotion || window.matchMedia("(pointer: coarse)").matches) return;
+  /* ---------- Nav status pill ----------
+     A small "systems online" readout injected next to the wordmark on
+     every page — the console idea announcing itself in the one spot
+     everyone looks at first. Injected via JS (like the command palette
+     trigger) so every page picks it up from one shared script. */
+  function initNavStatusPill() {
+    document.querySelectorAll(".nav__brand").forEach(function (brand) {
+      if (brand.querySelector(".nav__status")) return;
+      var pill = document.createElement("span");
+      pill.className = "nav__status";
+      pill.innerHTML = '<span class="nav__status-dot"></span>All systems online';
+      brand.appendChild(pill);
+    });
+  }
 
-    stage.addEventListener("mousemove", function (e) {
-      var rect = stage.getBoundingClientRect();
-      var x = (e.clientX - rect.left) / rect.width - 0.5;
-      var y = (e.clientY - rect.top) / rect.height - 0.5;
-      stage.style.setProperty("--px", (x * 14).toFixed(2) + "px");
-      stage.style.setProperty("--py", (y * 14).toFixed(2) + "px");
-    });
-    stage.addEventListener("mouseleave", function () {
-      stage.style.setProperty("--px", "0px");
-      stage.style.setProperty("--py", "0px");
-    });
+  /* ---------- Hero boot line ----------
+     Types out a single status line once on load, then leaves a blinking
+     cursor. Skips straight to the finished line under reduced motion. */
+  function initBootLine() {
+    var el = document.querySelector("[data-boot-line]");
+    if (!el) return;
+    var text = el.getAttribute("data-boot-line") || "";
+    var cursor = document.createElement("span");
+    cursor.className = "boot-line__cursor";
+
+    if (reduceMotion) {
+      el.textContent = text;
+      el.appendChild(cursor);
+      return;
+    }
+
+    var i = 0;
+    el.textContent = "";
+    el.appendChild(cursor);
+    (function type() {
+      if (i <= text.length) {
+        el.textContent = text.slice(0, i);
+        el.appendChild(cursor);
+        i++;
+        setTimeout(type, 18 + Math.random() * 22);
+      }
+    })();
   }
 
   function init() {
@@ -210,12 +214,11 @@
     initMobileMenu();
     initScrollReveal();
     initCounters();
-    initParticles();
     initRipple();
-    initMarquee();
     initBackToTop();
     initYear();
-    initParallax();
+    initNavStatusPill();
+    initBootLine();
   }
 
   if (document.readyState === "loading") {

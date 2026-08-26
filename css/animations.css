@@ -1,7 +1,8 @@
 /* ==========================================================================
    NEXO REALM — Motion
-   Signature element: "The Orbit" — a core node with project satellites
-   tracing elliptical paths around it, echoing the ring in the brand mark.
+   Signature element: the console panel + status ticker + project rows —
+   see pages.css. This file holds the shared motion primitives: scroll
+   reveal, the hero background field, and page-load transition.
    ========================================================================== */
 
 /* ---------- Scroll reveal ---------- */
@@ -24,7 +25,10 @@
 .reveal-stagger.is-visible > *:nth-child(5) { transition-delay: 320ms; }
 .reveal-stagger.is-visible > *:nth-child(6) { transition-delay: 400ms; }
 
-/* ---------- Hero background glow ---------- */
+/* ---------- Hero background field ----------
+   A quiet instrument-panel grid + soft red glow behind the console panel —
+   texture, not a focal shape, so the console panel and headline stay the
+   only things doing the talking. */
 .hero-glow {
   position: absolute;
   inset: 0;
@@ -40,144 +44,9 @@
   background-image:
     linear-gradient(var(--border) 1px, transparent 1px),
     linear-gradient(90deg, var(--border) 1px, transparent 1px);
-  background-size: 64px 64px;
-  mask-image: radial-gradient(60% 60% at 50% 30%, black, transparent 75%);
-  opacity: 0.6;
-}
-
-/* ---------- The Orbit signature ---------- */
-.orbit {
-  position: relative;
-  width: 100%;
-  max-width: 460px;
-  aspect-ratio: 1;
-  margin-inline: auto;
-}
-
-.orbit__core {
-  position: absolute;
-  inset: 38%;
-  border-radius: 50%;
-  background: radial-gradient(circle at 35% 30%, var(--red-300), var(--red-500) 55%, var(--red-900) 100%);
-  box-shadow: 0 0 60px 10px rgba(227, 18, 33, 0.45), inset 0 0 30px rgba(0,0,0,0.35);
-  animation: pulse 4s var(--ease-in-out) infinite;
-}
-
-@keyframes pulse {
-  0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.06); }
-}
-
-.orbit__ring {
-  position: absolute;
-  inset: 0;
-  border: 1px solid var(--border-strong);
-  border-radius: 50%;
-}
-.orbit__ring--2 { inset: 9%; border-color: var(--border); }
-.orbit__ring--3 { inset: 18%; border-style: dashed; opacity: 0.5; }
-
-/* Each satellite is a full-size absolutely-positioned wrapper that rotates
-   around the center; the dot sits pinned to the top edge of the wrapper so
-   it traces a perfect circle regardless of container size (no fixed px). */
-.orbit__satellite-wrap {
-  position: absolute;
-  inset: 0;
-  animation: orbit-spin linear infinite;
-}
-.orbit__satellite-wrap--a { inset: 0; animation-duration: 16s; }
-.orbit__satellite-wrap--b { inset: 9%; animation-duration: 22s; animation-direction: reverse; }
-.orbit__satellite-wrap--c { inset: 18%; animation-duration: 30s; }
-
-.orbit__satellite {
-  position: absolute;
-  top: -6px;
-  left: 50%;
-  width: 14px;
-  height: 14px;
-  border-radius: 50%;
-  transform: translateX(-50%);
-  background: linear-gradient(135deg, var(--red-300), var(--red-500));
-  box-shadow: 0 0 16px rgba(227,18,33,0.7);
-}
-.orbit__satellite-wrap--b .orbit__satellite { width: 11px; height: 11px; background: linear-gradient(135deg, #fff, var(--red-400)); }
-.orbit__satellite-wrap--c .orbit__satellite { width: 8px; height: 8px; }
-
-@keyframes orbit-spin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
-}
-
-/* ---------- Mouse parallax (hero orbit stage) ---------- */
-[data-parallax] {
-  --px: 0px;
-  --py: 0px;
-}
-[data-parallax] .orbit {
-  transform: translate(var(--px), var(--py));
-  transition: transform 200ms var(--ease-out);
-}
-
-/* ---------- Mini orbit (used as loading / decorative motif) ---------- */
-.orbit-mini {
-  position: relative;
-  width: 22px;
-  height: 22px;
-  flex-shrink: 0;
-}
-.orbit-mini__dot {
-  position: absolute;
-  width: 5px; height: 5px;
-  border-radius: 50%;
-  background: var(--red-400);
-  top: 0; left: 50%;
-  transform-origin: 0 11px;
-  animation: orbit-mini-spin 2.4s linear infinite;
-}
-@keyframes orbit-mini-spin {
-  from { transform: translateX(-50%) rotate(0deg); }
-  to { transform: translateX(-50%) rotate(360deg); }
-}
-
-/* ---------- Floating ambient particles ---------- */
-.particles {
-  position: absolute;
-  inset: 0;
-  overflow: hidden;
-  pointer-events: none;
-  z-index: 0;
-}
-.particle {
-  position: absolute;
-  border-radius: 50%;
-  background: var(--red-500);
-  opacity: 0.35;
-  filter: blur(1px);
-  animation: float-up linear infinite;
-}
-@keyframes float-up {
-  from { transform: translateY(10%) translateX(0); opacity: 0; }
-  10% { opacity: 0.45; }
-  90% { opacity: 0.25; }
-  to { transform: translateY(-110%) translateX(var(--drift, 20px)); opacity: 0; }
-}
-
-/* ---------- Marquee (featured strip) ---------- */
-.marquee {
-  overflow: hidden;
-  -webkit-mask-image: linear-gradient(90deg, transparent, black 8%, black 92%, transparent);
-  mask-image: linear-gradient(90deg, transparent, black 8%, black 92%, transparent);
-}
-.marquee__track {
-  display: flex;
-  gap: var(--space-6);
-  width: max-content;
-  animation: marquee 28s linear infinite;
-}
-.marquee:hover .marquee__track { animation-play-state: paused; }
-@keyframes marquee {
-  from { transform: translateX(0); }
-  to { transform: translateX(-50%); }
+  background-size: 48px 48px;
+  mask-image: radial-gradient(60% 60% at 50% 20%, black, transparent 75%);
+  opacity: 0.5;
 }
 
 /* ---------- Hover image zoom ---------- */
@@ -203,10 +72,4 @@
   50% { transform: scaleY(1); transform-origin: bottom; }
   50.1% { transform-origin: top; }
   100% { transform: scaleY(0); transform-origin: top; }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .orbit__satellite-wrap, .orbit__core, .particle, .marquee__track, .orbit-mini__dot {
-    animation: none !important;
-  }
 }
