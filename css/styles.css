@@ -357,6 +357,9 @@ body.menu-open {
   background: var(--checking);
   animation: blink 1.2s infinite;
 }
+.dot.unknown {
+  background: var(--text-faint);
+}
 @keyframes pulse-dot {
   0% {
     box-shadow: 0 0 0 0 rgba(53, 209, 122, 0.45);
@@ -405,6 +408,11 @@ body.menu-open {
   transform: translate(-50%, -50%);
   z-index: -1;
   opacity: 0.9;
+  pointer-events: none;
+  /* fade the field near the center so it never visually competes with the
+     headline/description/buttons sitting in that column */
+  mask-image: radial-gradient(circle at 50% 50%, transparent 0%, transparent 34%, black 46%, black 100%);
+  -webkit-mask-image: radial-gradient(circle at 50% 50%, transparent 0%, transparent 34%, black 46%, black 100%);
 }
 .orbit-ring {
   fill: none;

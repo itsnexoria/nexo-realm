@@ -157,20 +157,23 @@
     const ringGroup = $("#orbit-nodes", svg);
     const cx = 700,
       cy = 700;
-    const radii = [230, 340, 460];
+    // Radii deliberately sit OUTSIDE the readable hero column (headline +
+    // description + buttons occupy roughly the center 700px), so these
+    // stay pure ambient decoration and never collide with real copy.
+    // No text labels here — this is a background effect, not a second nav.
+    const radii = [560, 660];
     const items = projects.slice(0, 6);
     items.forEach((p, i) => {
       const radius = radii[i % radii.length];
-      const angle = (i / items.length) * Math.PI * 2 + 0.4;
+      const angle = (i / items.length) * Math.PI * 2 + 0.35;
       const x = cx + radius * Math.cos(angle);
       const y = cy + radius * Math.sin(angle);
       const g = document.createElementNS("http://www.w3.org/2000/svg", "g");
       g.setAttribute("class", "orbit-node");
       g.setAttribute("transform", `translate(${x}, ${y})`);
       g.innerHTML = `
-        <circle class="glow" r="7"></circle>
-        <circle class="core" r="4"></circle>
-        <text x="12" y="4">${p.name.toUpperCase()}</text>
+        <circle class="glow" r="6"></circle>
+        <circle class="core" r="3"></circle>
       `;
       ringGroup.appendChild(g);
     });
@@ -207,7 +210,7 @@
   }
 
   function applyDotState(dotEl, textEl, data) {
-    dotEl.classList.remove("online", "offline", "checking");
+    dotEl.classList.remove("online", "offline", "checking", "unknown");
     if (data.online === true) {
       dotEl.classList.add("online");
       if (textEl) textEl.textContent = "Online";
@@ -215,9 +218,24 @@
       dotEl.classList.add("offline");
       if (textEl) textEl.textContent = "Offline";
     } else {
-      dotEl.classList.add("checking");
+      // status genuinely couldn't be determined (backend unreachable, e.g.
+      // a static preview without the Pages Functions running) — this is
+      // NOT the same as confirmed-down, so it never claims "Offline".
+      dotEl.classList.add("unknown");
       if (textEl) textEl.textContent = "Unknown";
     }
+  }
+
+  // Summarize a set of online states into a single honest headline.
+  // Never reports "down" for a project we simply failed to reach.
+  function summarizeStatus(values, total) {
+    const online = values.filter((v) => v === true).length;
+    const offline = values.filter((v) => v === false).length;
+    const unknown = values.filter((v) => v === null || v === undefined).length;
+    if (unknown === total) return { dotClass: "unknown", label: "STATUS UNAVAILABLE" };
+    if (online === total) return { dotClass: "online", label: "ALL SYSTEMS OPERATIONAL" };
+    if (offline > 0) return { dotClass: "offline", label: `${online}/${total} ONLINE` };
+    return { dotClass: "checking", label: `${online}/${total} ONLINE` };
   }
 
   // -------------------------------------------------------
@@ -445,19 +463,12 @@
     function updateHeadline() {
       const values = Array.from(states.values());
       if (values.length < projects.length) return; // wait for all to report
-      const onlineCount = values.filter((v) => v === true).length;
+      const { dotClass, label } = summarizeStatus(values, projects.length);
       const dot = $(".dot", headPill);
-      dot.classList.remove("online", "offline", "checking");
-      if (onlineCount === projects.length) {
-        dot.classList.add("online");
-        headPill.lastChild.textContent = " All systems operational";
-      } else if (onlineCount === 0) {
-        dot.classList.add("offline");
-        headPill.lastChild.textContent = " All systems down";
-      } else {
-        dot.classList.add("checking");
-        headPill.lastChild.textContent = ` ${onlineCount}/${projects.length} systems online`;
-      }
+      dot.classList.remove("online", "offline", "checking", "unknown");
+      dot.classList.add(dotClass);
+      headPill.lastChild.textContent =
+        dotClass === "unknown" ? " Status unavailable — checks aren't reachable right now" : ` ${label.toLowerCase().replace(/^\w/, (c) => c.toUpperCase())}`;
     }
   }
 
@@ -519,21 +530,13 @@
         states.set(project.url, data.online);
         const values = Array.from(states.values());
         if (values.length < projects.length) return;
-        const onlineCount = values.filter((v) => v === true).length;
+        const { dotClass, label } = summarizeStatus(values, projects.length);
         pills.forEach((pill) => {
           const dot = $(".dot", pill);
-          const label = $("[data-role='label']", pill);
-          dot.classList.remove("online", "offline", "checking");
-          if (onlineCount === projects.length) {
-            dot.classList.add("online");
-            label.textContent = "ECOSYSTEM ONLINE";
-          } else if (onlineCount === 0) {
-            dot.classList.add("offline");
-            label.textContent = "ECOSYSTEM OFFLINE";
-          } else {
-            dot.classList.add("checking");
-            label.textContent = `${onlineCount}/${projects.length} ONLINE`;
-          }
+          const labelEl = $("[data-role='label']", pill);
+          dot.classList.remove("online", "offline", "checking", "unknown");
+          dot.classList.add(dotClass);
+          labelEl.textContent = dotClass === "unknown" ? "STATUS UNAVAILABLE" : label === "ALL SYSTEMS OPERATIONAL" ? "ECOSYSTEM ONLINE" : label;
         });
       });
     });

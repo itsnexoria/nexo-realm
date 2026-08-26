@@ -32,7 +32,7 @@ const NEXORIA_PROJECTS = [
   },
   {
     id: "nexo-boost",
-    name: "Next Boost",
+    name: "Nexo Boost",
     url: "https://boost.nexorealm.org",
     category: "Tools",
     type: "tool",
