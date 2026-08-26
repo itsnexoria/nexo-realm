@@ -538,7 +538,7 @@ body.menu-open {
 }
 .hero-scroll {
   position: absolute;
-  bottom: 36px;
+  bottom: 28px;
   left: 50%;
   transform: translateX(-50%);
   display: flex;
@@ -550,6 +550,17 @@ body.menu-open {
   font-size: 10px;
   letter-spacing: 0.16em;
   text-transform: uppercase;
+  pointer-events: none;
+  z-index: -1;
+}
+/* On shorter viewports the hero's own content (badge + title + copy +
+   buttons) can run taller than the visible window, which pushes the CTA
+   row down toward where this cue sits. Rather than risk any overlap,
+   hide it once there isn't comfortably room for it. */
+@media (max-height: 820px) {
+  .hero-scroll {
+    display: none;
+  }
 }
 .hero-scroll .line {
   width: 1px;
