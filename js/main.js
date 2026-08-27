@@ -4,6 +4,9 @@
   const METADATA_CACHE_TTL = 6 * 60 * 60 * 1000; // 6h client-side cache
   const STATUS_CACHE_TTL = 2 * 60 * 1000; // 2min client-side cache
   const projects = NEXORIA_PROJECTS.filter((p) => !p.self);
+  // Projects with a live URL worth polling for uptime — excludes anything
+  // marked status:"development" (unreleased software has no "online" to check).
+  const liveProjects = projects.filter((p) => p.status !== "development");
 
   // -------------------------------------------------------
   // tiny helpers
@@ -238,6 +241,19 @@
     return { dotClass: "checking", label: `${online}/${total} ONLINE` };
   }
 
+  // Wires a status dot for any project — live sites subscribe to the real
+  // uptime check; unreleased software (status:"development") gets a static
+  // "In development" badge instead, since there's no "online" to check.
+  function wireStatusIndicator(project, dotEl, textEl) {
+    if (project.status === "development") {
+      dotEl.classList.remove("online", "offline", "checking", "unknown");
+      dotEl.classList.add("building");
+      if (textEl) textEl.textContent = "In development";
+      return;
+    }
+    subscribeStatus(project.url, (data) => applyDotState(dotEl, textEl, data));
+  }
+
   // -------------------------------------------------------
   // metadata fetch (title/description/favicon/og:image)
   // -------------------------------------------------------
@@ -259,6 +275,8 @@
   // project cards
   // -------------------------------------------------------
   function cardTemplate(project) {
+    if (project.type === "software") return softwareCardTemplate(project);
+
     const card = document.createElement("article");
     card.className = "card reveal";
     card.dataset.category = project.category;
@@ -292,7 +310,7 @@
     `;
 
     const dot = $('[data-role="dot"]', card);
-    subscribeStatus(project.url, (data) => applyDotState(dot, null, data));
+    wireStatusIndicator(project, dot, null);
 
     const descEl = $('[data-role="desc"]', card);
     const iconEl = $(".card-icon", card);
@@ -316,6 +334,61 @@
         img.src = meta.favicon;
       }
     });
+
+    return card;
+  }
+
+  // Software cards skip the live "online/offline" model entirely — they
+  // show version/platform tags, a static build-state badge, and explicit
+  // links (GitHub / Download / Docs) instead of a single whole-card link,
+  // since a repo isn't "visited" the way a website is.
+  function softwareCardTemplate(project) {
+    const card = document.createElement("article");
+    card.className = "card reveal";
+    card.dataset.category = project.category;
+    card.dataset.name = project.name.toLowerCase();
+    card.dataset.desc = (project.description || "").toLowerCase();
+
+    const tags = [project.version, project.platform].filter(Boolean);
+    const tagsHtml = tags.length ? `<div class="card-tags">${tags.map((t) => `<span class="tag">${t}</span>`).join("")}</div>` : "";
+
+    const primaryUrl = project.githubUrl || project.url;
+    const extraLinks = [];
+    if (project.githubUrl) extraLinks.push({ label: "GitHub", url: project.githubUrl });
+    if (project.downloadUrl) extraLinks.push({ label: "Download", url: project.downloadUrl });
+    if (project.docsUrl) extraLinks.push({ label: "Docs", url: project.docsUrl });
+    const extraLinksHtml = extraLinks.length
+      ? `<div class="card-extra-links">${extraLinks
+          .map((l) => `<a href="${l.url}" target="_blank" rel="noopener noreferrer">${l.label}</a>`)
+          .join("")}</div>`
+      : "";
+
+    card.innerHTML = `
+      <div class="card-top">
+        <div class="card-icon" aria-hidden="true">
+          <span class="fallback">${initials(project.name)}</span>
+        </div>
+        <span class="card-category">${project.category}</span>
+      </div>
+      <div class="card-body">
+        <h3 class="card-name">
+          ${project.name}
+          <span class="status-pill"><span class="dot checking" data-role="dot"></span><span data-role="status-text"></span></span>
+        </h3>
+        <p class="card-desc" data-role="desc">${project.description || "No description available yet."}</p>
+        ${tagsHtml}
+      </div>
+      <div class="card-foot">
+        ${extraLinksHtml || `<span class="card-url">${hostOf(primaryUrl)}</span>`}
+      </div>
+      <a class="card-link-cover" href="${primaryUrl}" target="_blank" rel="noopener noreferrer">
+        <span class="sr-only">Open ${project.name} on GitHub</span>
+      </a>
+    `;
+
+    const dot = $('[data-role="dot"]', card);
+    const statusText = $('[data-role="status-text"]', card);
+    wireStatusIndicator(project, dot, statusText);
 
     return card;
   }
@@ -412,7 +485,7 @@
 
       const dot = $('[data-role="dot"]', el);
       const statusText = $('[data-role="status-text"]', el);
-      subscribeStatus(project.url, (data) => applyDotState(dot, statusText, data));
+      wireStatusIndicator(project, dot, statusText);
 
       fetchMetadata(project).then((meta) => {
         if (!meta) return;
@@ -453,6 +526,11 @@
       rows.appendChild(row);
       const dot = $('[data-role="dot"]', row);
       const text = $('[data-role="text"]', row);
+
+      if (project.status === "development") {
+        wireStatusIndicator(project, dot, text); // static badge, doesn't affect the aggregate headline
+        return;
+      }
       subscribeStatus(project.url, (data) => {
         applyDotState(dot, text, data);
         states.set(project.url, data.online);
@@ -462,8 +540,8 @@
 
     function updateHeadline() {
       const values = Array.from(states.values());
-      if (values.length < projects.length) return; // wait for all to report
-      const { dotClass, label } = summarizeStatus(values, projects.length);
+      if (values.length < liveProjects.length) return; // wait for all live (non-dev) projects to report
+      const { dotClass, label } = summarizeStatus(values, liveProjects.length);
       const dot = $(".dot", headPill);
       dot.classList.remove("online", "offline", "checking", "unknown");
       dot.classList.add(dotClass);
@@ -525,12 +603,12 @@
     const pills = [$("#nav-status-pill"), $("#hero-status-pill")].filter(Boolean);
     if (!pills.length) return;
     const states = new Map();
-    projects.forEach((project) => {
+    liveProjects.forEach((project) => {
       subscribeStatus(project.url, (data) => {
         states.set(project.url, data.online);
         const values = Array.from(states.values());
-        if (values.length < projects.length) return;
-        const { dotClass, label } = summarizeStatus(values, projects.length);
+        if (values.length < liveProjects.length) return;
+        const { dotClass, label } = summarizeStatus(values, liveProjects.length);
         pills.forEach((pill) => {
           const dot = $(".dot", pill);
           const labelEl = $("[data-role='label']", pill);

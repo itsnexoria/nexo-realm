@@ -20,6 +20,14 @@
 // status:   leave unset to let the live status checker decide.
 //           set to "development" to permanently show a build badge
 //           instead of an online/offline dot (e.g. unreleased software).
+//
+// Software-only fields (type: "software"):
+//   version     — short label shown as a tag, e.g. "v0.4" or "Early build"
+//   platform    — short label shown as a tag, e.g. "Windows · Linux"
+//   githubUrl   — repo link; also used as the click-through if set
+//   downloadUrl — direct download/release link, shown as its own button
+//   docsUrl     — documentation link, shown as its own button
+// Only the ones you actually set are rendered — no field is required.
 const NEXORIA_PROJECTS = [
   {
     id: "nexorealm",
@@ -74,6 +82,19 @@ const NEXORIA_PROJECTS = [
     description: "A curated directory of the web — hundreds of sites and tools, organized.",
     featured: true,
   },
+  {
+    id: "nexo-dev",
+    name: "Nexo Dev",
+    url: "https://github.com/itsnexoria/nexo-dev",
+    category: "Software",
+    type: "software",
+    description: "A custom Electron + Monaco code editor — multi-terminal tabs, integrated Git, and a built-in GitHub panel.",
+    platform: "Windows · Linux",
+    githubUrl: "https://github.com/itsnexoria/nexo-dev",
+    // downloadUrl: "https://github.com/itsnexoria/nexo-dev/releases", // uncomment once a public release exists
+    // docsUrl: "https://...", // add if/when docs go up
+    status: "development", // shows a static "In development" badge instead of a live online/offline check
+  },
 ];
 
 // ---------------------------------------------------------------
@@ -111,8 +132,8 @@ function getEcosystemStats() {
 // CURRENTLY BUILDING — small, hand-edited, optional
 // ---------------------------------------------------------------
 const NEXORIA_CURRENTLY_BUILDING = {
-  title: "Expanding Nexo Hub's directory and tooling",
-  note: "Set this in js/config.js — leave blank to hide the section.",
+  title: "",
+  note: "",
 };
 
 if (typeof module !== "undefined") {
