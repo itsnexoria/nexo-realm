@@ -483,6 +483,22 @@ body.menu-open {
   letter-spacing: 0.04em;
 }
 
+.hero-layout {
+  position: relative;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 44px;
+}
+@media (min-width: 1024px) {
+  .hero-layout {
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    gap: 56px;
+  }
+}
 .hero-inner {
   position: relative;
   width: 100%;
@@ -538,6 +554,28 @@ body.menu-open {
   justify-content: center;
   gap: 16px;
   margin-top: 40px;
+}
+/* Two-column layout once there's room for the nav panel beside the
+   headline. Placed after the base rules above (same selectors, so
+   source order is what makes this win at matching widths). */
+@media (min-width: 1024px) {
+  .hero-inner {
+    flex: 1 1 auto;
+    min-width: 0;
+    text-align: left;
+  }
+  .hero-desc {
+    margin: 30px 0 0;
+  }
+  .hero-ctas {
+    justify-content: flex-start;
+  }
+  /* the headline gets a bit of room taken by the nav panel now, so it
+     scales down a notch to comfortably fit next to it rather than risk
+     overlapping — still large, just not edge-to-edge large */
+  .hero-title {
+    font-size: clamp(40px, 7.5vw, 128px);
+  }
 }
 .btn {
   display: inline-flex;
@@ -599,32 +637,28 @@ body.menu-open {
   }
 }
 
-/* In-page quick-launch panel — not a slide-out drawer, just a normal
-   part of the hero's layout. Deliberately narrow and tucked to the
-   screen edge, and only shown once the viewport is wide enough that it
-   can't collide with the large centered headline (which itself can run
-   close to 1000px wide on a big screen) — better to hide it than have
-   it overlap the title on a typical laptop window. */
+/* In-page quick-launch list card — a normal part of the hero's layout
+   flow, not a slide-out drawer. Stacks full-width below the headline on
+   small/medium screens, sits beside it as a fixed-width card once
+   .hero-layout switches to a row at 1024px (see above). */
 .hero-nav-panel {
-  display: none;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 380px;
+  max-height: 320px;
+  background: rgba(11, 11, 14, 0.72);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-m);
+  overflow: hidden;
+  flex-shrink: 0;
 }
-@media (min-width: 1440px) {
+@media (min-width: 1024px) {
   .hero-nav-panel {
-    display: flex;
-    flex-direction: column;
-    position: absolute;
-    right: 28px;
-    top: 62%;
-    transform: translateY(-50%);
-    width: 208px;
-    max-height: 340px;
-    background: rgba(11, 11, 14, 0.72);
-    backdrop-filter: blur(14px);
-    -webkit-backdrop-filter: blur(14px);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-m);
-    overflow: hidden;
-    z-index: 2;
+    width: 280px;
+    max-width: none;
   }
 }
 .hero-nav-panel-head {
@@ -907,6 +941,9 @@ body.menu-open {
   aspect-ratio: 16 / 9;
   background: var(--void);
   transition: border-color 0.35s var(--ease);
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 .card:hover .card-thumb,
 .card:focus-within .card-thumb {
@@ -915,8 +952,10 @@ body.menu-open {
 .card-thumb img {
   width: 100%;
   height: 100%;
-  object-fit: cover;
-  object-position: left top;
+  /* contain, not cover — guarantees the full screenshot is always
+     visible with no cropped text, at the cost of a small letterbox
+     when a screenshot's aspect ratio doesn't exactly match the card */
+  object-fit: contain;
   display: block;
   transition: transform 0.5s var(--ease);
 }
@@ -1126,11 +1165,10 @@ body.menu-open {
   bottom: 0;
   width: 100%;
   height: calc(100% - 28px);
-  object-fit: cover;
-  /* screenshots in this project are consistently left/top-heavy (headline
-     + copy anchored top-left) — crop from the right/bottom instead of the
-     default center crop, which was cutting words off mid-line */
-  object-position: left top;
+  /* contain, not cover — guarantees the full screenshot is always visible
+     with no cropped text, at the cost of a small letterbox when a
+     screenshot's aspect ratio doesn't exactly match the frame */
+  object-fit: contain;
 }
 .featured-visual .browser-bar {
   position: absolute;
