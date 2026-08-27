@@ -187,17 +187,69 @@
   function initHeroNavPanel() {
     const list = $("#hero-nav-list");
     if (!list) return;
-    projects.slice(0, 8).forEach((project) => {
+    const items = projects.slice(0, 8);
+
+    items.forEach((project) => {
       const a = document.createElement("a");
       a.className = "hero-nav-link";
       a.href = project.type === "software" ? project.githubUrl || project.url : project.url;
       a.target = "_blank";
       a.rel = "noopener noreferrer";
-      a.innerHTML = `<span class="dot checking" data-role="dot"></span><span>${project.name}</span>`;
+      a.innerHTML = `
+        <span class="hero-nav-link-icon" aria-hidden="true">${iconMarkup(project)}</span>
+        <span class="hero-nav-link-text">
+          <span class="name">${project.name}</span>
+          <span class="category">${project.category}</span>
+        </span>
+        <span class="dot checking" data-role="dot"></span>
+        <svg class="hero-nav-link-arrow" width="12" height="12" viewBox="0 0 13 13" fill="none" aria-hidden="true"><path d="M3 10L10 3M10 3H4.5M10 3V8.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      `;
       list.appendChild(a);
+
       const dot = $('[data-role="dot"]', a);
       wireStatusIndicator(project, dot, null);
+
+      // websites/tools don't have a config-set icon — try to pick up the
+      // real favicon the same way project cards do
+      if (!project.icon) {
+        const iconEl = $(".hero-nav-link-icon", a);
+        fetchMetadata(project).then((meta) => {
+          if (meta && meta.favicon) {
+            const img = new Image();
+            img.onload = () => {
+              iconEl.innerHTML = "";
+              img.alt = "";
+              img.loading = "lazy";
+              iconEl.appendChild(img);
+            };
+            img.onerror = () => {};
+            img.src = meta.favicon;
+          }
+        });
+      }
     });
+
+    // live "X/Y online" counter in the panel header, same honest logic as
+    // the ecosystem status panel — never claims a project is down when a
+    // check simply couldn't be reached
+    const countEl = $("#hero-nav-count");
+    if (countEl) {
+      const states = new Map();
+      liveProjects.forEach((project) => {
+        subscribeStatus(project.url, (data) => {
+          states.set(project.url, data.online);
+          const values = Array.from(states.values());
+          if (values.length < liveProjects.length) return;
+          const { dotClass } = summarizeStatus(values, liveProjects.length);
+          const online = values.filter((v) => v === true).length;
+          const dot = $(".dot", countEl);
+          const labelEl = $("[data-role='label']", countEl);
+          dot.classList.remove("online", "offline", "checking", "unknown");
+          dot.classList.add(dotClass);
+          labelEl.textContent = dotClass === "unknown" ? "Unavailable" : `${online}/${liveProjects.length} online`;
+        });
+      });
+    }
   }
 
   // -------------------------------------------------------
