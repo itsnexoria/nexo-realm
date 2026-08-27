@@ -685,6 +685,23 @@
     });
   }
 
+  // Compact icon-only social row in the nav, replacing the old status
+  // pill + Explore button — same NEXORIA_SOCIALS source as the full grid
+  // in the Socials section, just the first few so the header stays tidy.
+  function initNavSocials() {
+    const wrap = $("#nav-socials");
+    if (!wrap) return;
+    NEXORIA_SOCIALS.slice(0, 4).forEach((s) => {
+      const a = document.createElement("a");
+      a.href = s.url;
+      a.target = "_blank";
+      a.rel = "noopener noreferrer";
+      a.setAttribute("aria-label", s.name);
+      a.innerHTML = ICONS[s.icon] || "";
+      wrap.appendChild(a);
+    });
+  }
+
   // -------------------------------------------------------
   // currently building
   // -------------------------------------------------------
@@ -702,6 +719,8 @@
   // "online" without a real check backing it up.
   // -------------------------------------------------------
   function initNavStatus() {
+    // #nav-status-pill was removed from the header in favor of the social
+    // icons row — this now only drives the hero badge, filtered gracefully.
     const pills = [$("#nav-status-pill"), $("#hero-status-pill")].filter(Boolean);
     if (!pills.length) return;
     const states = new Map();
@@ -824,6 +843,7 @@
     initProjectGrid();
     initStatusPanel();
     initSocials();
+    initNavSocials();
     initBuilding();
     initNavStatus();
     initFooter();

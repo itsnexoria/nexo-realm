@@ -71,6 +71,30 @@ body {
   -webkit-font-smoothing: antialiased;
   overflow-x: hidden;
 }
+
+/* site-wide custom scrollbar — same red-ember treatment used everywhere
+   else, instead of the default OS scrollbar */
+html {
+  scrollbar-width: thin;
+  scrollbar-color: var(--red-ember) var(--void);
+}
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-track {
+  background: var(--void);
+}
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(var(--red-ember), var(--red-deep));
+  border-radius: 100px;
+  border: 2px solid var(--void);
+  background-clip: padding-box;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--red-ember);
+  background-clip: padding-box;
+}
 img {
   max-width: 100%;
   display: block;
@@ -273,26 +297,36 @@ svg {
   align-items: center;
   gap: 20px;
 }
-.nav-status {
+.nav-socials {
   display: none;
+  align-items: center;
+  gap: 8px;
 }
-@media (min-width: 900px) {
-  .nav-status {
+@media (min-width: 640px) {
+  .nav-socials {
     display: flex;
   }
 }
-.nav-cta {
-  border: 1px solid var(--border-strong);
-  padding: 9px 18px;
-  border-radius: 100px;
-  font-size: 13px;
-  font-weight: 500;
-  transition: border-color 0.2s, background 0.2s, transform 0.2s;
+.nav-socials a {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-dim);
+  transition: border-color 0.2s, background 0.2s, color 0.2s, transform 0.2s;
 }
-.nav-cta:hover {
+.nav-socials a:hover {
   border-color: var(--border-red);
   background: var(--red-dim);
+  color: var(--red-ember);
   transform: translateY(-1px);
+}
+.nav-socials svg {
+  width: 15px;
+  height: 15px;
 }
 .nav-toggle {
   display: flex;
@@ -728,7 +762,7 @@ body.menu-open {
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 11px 18px;
+  padding: 15px 18px;
   border-bottom: 1px solid var(--border);
   transition: background 0.2s, padding-left 0.25s var(--ease);
   overflow: hidden;
