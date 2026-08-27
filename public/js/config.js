@@ -105,6 +105,28 @@ const NEXORIA_PROJECTS = [
     // docsUrl: "https://...", // add if/when docs go up
     status: "development", // shows a static "In development" badge instead of a live online/offline check
   },
+  {
+    id: "nexo-optimize",
+    name: "Nexo Optimize",
+    url: "https://github.com/itsnexoria/NexoOptimize",
+    category: "Software",
+    type: "software",
+    description: "An all-in-one Windows performance and system-maintenance suite — gaming optimization, network tools, storage cleanup, RAM/process/service management, and more.",
+    platform: "Windows",
+    githubUrl: "https://github.com/itsnexoria/NexoOptimize",
+    status: "development",
+  },
+  {
+    id: "nexo-browser",
+    name: "Nexo Browser",
+    url: "https://github.com/itsnexoria/nexo-browser",
+    category: "Software",
+    type: "software",
+    description: "An Electron shell for running several Google (or any) accounts side by side, each fully isolated, without the overhead of keeping every one fully live.",
+    platform: "Windows",
+    githubUrl: "https://github.com/itsnexoria/nexo-browser",
+    status: "development",
+  },
 ];
 
 // ---------------------------------------------------------------
