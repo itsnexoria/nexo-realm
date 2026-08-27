@@ -371,6 +371,10 @@
           .join("")}</div>`
       : "";
 
+    const thumbHtml = project.image
+      ? `<div class="card-thumb"><img src="${project.image}" alt="" loading="lazy" width="960" height="540" /></div>`
+      : "";
+
     card.innerHTML = `
       <div class="card-top">
         <div class="card-icon" aria-hidden="true">
@@ -378,6 +382,7 @@
         </div>
         <span class="card-category">${project.category}</span>
       </div>
+      ${thumbHtml}
       <div class="card-body">
         <h3 class="card-name">
           ${project.name}

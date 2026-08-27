@@ -389,6 +389,10 @@ body.menu-open {
   display: flex;
   align-items: center;
   padding-top: 100px;
+  /* guarantees breathing room below the CTAs before the stats divider,
+     even on shorter windows where the content nearly fills the section
+     and centering alone wouldn't leave any gap underneath */
+  padding-bottom: clamp(40px, 6vh, 80px);
   overflow: hidden;
 }
 .hero-glow {

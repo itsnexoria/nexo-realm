@@ -100,6 +100,7 @@ const NEXORIA_PROJECTS = [
     description: "A custom Electron + Monaco code editor — multi-terminal tabs, integrated Git, and a built-in GitHub panel.",
     platform: "Windows · Linux",
     githubUrl: "https://github.com/itsnexoria/nexo-dev",
+    image: "/assets/previews/nexo-dev.jpg",
     // downloadUrl: "https://github.com/itsnexoria/nexo-dev/releases", // uncomment once a public release exists
     // docsUrl: "https://...", // add if/when docs go up
     status: "development", // shows a static "In development" badge instead of a live online/offline check
