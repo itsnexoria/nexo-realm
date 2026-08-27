@@ -130,6 +130,7 @@ const NEXORIA_PROJECTS = [
     platform: "Windows",
     githubUrl: "https://github.com/itsnexoria/nexo-browser",
     icon: "/assets/icons/nexo-browser.png",
+    image: "/assets/previews/nexo-browser.jpg",
     status: "development",
   },
 ];
