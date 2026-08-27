@@ -31,6 +31,8 @@
 //   githubUrl   — repo link; also used as the click-through if set
 //   downloadUrl — direct download/release link, shown as its own button
 //   docsUrl     — documentation link, shown as its own button
+//   icon        — path to a square logo mark (e.g. "/assets/icons/name.png"),
+//                 shown in the small card-icon badge instead of initials
 // Only the ones you actually set are rendered — no field is required.
 const NEXORIA_PROJECTS = [
   {
@@ -101,6 +103,7 @@ const NEXORIA_PROJECTS = [
     platform: "Windows · Linux",
     githubUrl: "https://github.com/itsnexoria/nexo-dev",
     image: "/assets/previews/nexo-dev.jpg",
+    icon: "/assets/icons/nexo-dev.png",
     // downloadUrl: "https://github.com/itsnexoria/nexo-dev/releases", // uncomment once a public release exists
     // docsUrl: "https://...", // add if/when docs go up
     status: "development", // shows a static "In development" badge instead of a live online/offline check
@@ -114,6 +117,7 @@ const NEXORIA_PROJECTS = [
     description: "An all-in-one Windows performance and system-maintenance suite — gaming optimization, network tools, storage cleanup, RAM/process/service management, and more.",
     platform: "Windows",
     githubUrl: "https://github.com/itsnexoria/NexoOptimize",
+    icon: "/assets/icons/nexo-optimize.png",
     status: "development",
   },
   {
@@ -125,6 +129,7 @@ const NEXORIA_PROJECTS = [
     description: "An Electron shell for running several Google (or any) accounts side by side, each fully isolated, without the overhead of keeping every one fully live.",
     platform: "Windows",
     githubUrl: "https://github.com/itsnexoria/nexo-browser",
+    icon: "/assets/icons/nexo-browser.png",
     status: "development",
   },
 ];

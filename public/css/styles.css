@@ -244,6 +244,26 @@ svg {
   color: var(--text-dim);
   transition: color 0.2s;
   position: relative;
+  padding-bottom: 2px;
+}
+.nav-links a::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: -2px;
+  height: 1px;
+  width: 100%;
+  background: var(--red-ember);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.3s var(--ease);
+}
+.nav-links a:hover::after,
+.nav-links a:focus-visible::after {
+  transform: scaleX(1);
+}
+.nav-links a[aria-current="true"]::after {
+  transform: scaleX(1);
 }
 .nav-links a:hover {
   color: var(--text);
@@ -405,6 +425,15 @@ body.menu-open {
   background: radial-gradient(circle, rgba(255, 51, 25, 0.16) 0%, rgba(255, 51, 25, 0.05) 38%, transparent 68%);
   pointer-events: none;
   z-index: -1;
+}
+.hero-cursor-glow {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  opacity: 0;
+  transition: opacity 0.4s var(--ease);
+  pointer-events: none;
+  background: radial-gradient(500px circle at var(--mx, 50%) var(--my, 50%), rgba(255, 106, 69, 0.1), transparent 60%);
 }
 .orbit-field {
   position: absolute;
@@ -797,7 +826,8 @@ body.menu-open {
 .card-icon img {
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: contain;
+  padding: 5px;
 }
 .card-icon .fallback {
   font-family: var(--font-display);

@@ -290,7 +290,7 @@
     card.innerHTML = `
       <div class="card-top">
         <div class="card-icon" aria-hidden="true">
-          <span class="fallback">${initials(project.name)}</span>
+          ${iconMarkup(project)}
         </div>
         <span class="card-category">${project.category}</span>
       </div>
@@ -350,6 +350,10 @@
   // show version/platform tags, a static build-state badge, and explicit
   // links (GitHub / Download / Docs) instead of a single whole-card link,
   // since a repo isn't "visited" the way a website is.
+  function iconMarkup(project) {
+    return project.icon ? `<img src="${project.icon}" alt="" loading="lazy" />` : `<span class="fallback">${initials(project.name)}</span>`;
+  }
+
   function softwareCardTemplate(project) {
     const card = document.createElement("article");
     card.className = "card reveal";
@@ -378,7 +382,7 @@
     card.innerHTML = `
       <div class="card-top">
         <div class="card-icon" aria-hidden="true">
-          <span class="fallback">${initials(project.name)}</span>
+          ${iconMarkup(project)}
         </div>
         <span class="card-category">${project.category}</span>
       </div>
@@ -656,6 +660,91 @@
     if (y) y.textContent = new Date().getFullYear();
   }
 
+  // -------------------------------------------------------
+  // micro-interactions — skipped entirely under prefers-reduced-motion
+  // -------------------------------------------------------
+  const REDUCE_MOTION = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const HAS_FINE_POINTER = window.matchMedia("(pointer: fine)").matches;
+
+  // Cursor-reactive ambient glow in the hero — a subtle radial highlight
+  // that follows the pointer, layered under the content.
+  function initHeroCursorGlow() {
+    if (REDUCE_MOTION || !HAS_FINE_POINTER) return;
+    const hero = $(".hero");
+    if (!hero) return;
+    const glow = document.createElement("div");
+    glow.className = "hero-cursor-glow";
+    glow.setAttribute("aria-hidden", "true");
+    hero.appendChild(glow);
+    hero.addEventListener("pointermove", (e) => {
+      const rect = hero.getBoundingClientRect();
+      glow.style.setProperty("--mx", `${e.clientX - rect.left}px`);
+      glow.style.setProperty("--my", `${e.clientY - rect.top}px`);
+      glow.style.opacity = "1";
+    });
+    hero.addEventListener("pointerleave", () => {
+      glow.style.opacity = "0";
+    });
+  }
+
+  // Magnetic pull — the button drifts slightly toward the cursor within a
+  // small radius, and snaps back on leave. A light-touch version, not a
+  // dramatic one.
+  function initMagneticButtons() {
+    if (REDUCE_MOTION || !HAS_FINE_POINTER) return;
+    $$(".btn-primary, .btn-ghost").forEach((btn) => {
+      btn.addEventListener("pointermove", (e) => {
+        const rect = btn.getBoundingClientRect();
+        const x = e.clientX - rect.left - rect.width / 2;
+        const y = e.clientY - rect.top - rect.height / 2;
+        btn.style.transform = `translate(${x * 0.18}px, ${y * 0.18 - 2}px)`;
+      });
+      btn.addEventListener("pointerleave", () => {
+        btn.style.transform = "";
+      });
+    });
+  }
+
+  // Subtle tilt on project cards — follows the pointer within the card,
+  // combined with the existing hover-lift.
+  function initCardTilt() {
+    if (REDUCE_MOTION || !HAS_FINE_POINTER) return;
+    document.addEventListener("pointermove", (e) => {
+      const card = e.target.closest?.(".card");
+      if (!card) return;
+      const rect = card.getBoundingClientRect();
+      const px = (e.clientX - rect.left) / rect.width - 0.5;
+      const py = (e.clientY - rect.top) / rect.height - 0.5;
+      card.style.transform = `perspective(800px) translateY(-4px) rotateX(${(-py * 4).toFixed(2)}deg) rotateY(${(px * 4).toFixed(2)}deg)`;
+    });
+    document.addEventListener(
+      "pointerout",
+      (e) => {
+        const card = e.target.closest?.(".card");
+        if (card && !card.contains(e.relatedTarget)) card.style.transform = "";
+      },
+      true
+    );
+  }
+
+  // Highlights the nav link for whichever section is currently in view.
+  function initScrollSpy() {
+    const sections = ["projects", "status", "about", "socials"].map((id) => $(`#${id}`)).filter(Boolean);
+    const links = $$(".nav-links a, .mobile-menu a");
+    if (!sections.length || !links.length || !("IntersectionObserver" in window)) return;
+    const io = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (!entry.isIntersecting) return;
+          const id = entry.target.id;
+          links.forEach((a) => a.toggleAttribute("aria-current", a.getAttribute("href") === `#${id}`));
+        });
+      },
+      { rootMargin: "-45% 0px -50% 0px" }
+    );
+    sections.forEach((s) => io.observe(s));
+  }
+
   document.addEventListener("DOMContentLoaded", () => {
     initNav();
     initOrbit();
@@ -668,5 +757,9 @@
     initNavStatus();
     initFooter();
     initReveal();
+    initHeroCursorGlow();
+    initMagneticButtons();
+    initCardTilt();
+    initScrollSpy();
   });
 })();
