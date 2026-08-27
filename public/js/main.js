@@ -182,6 +182,24 @@
     });
   }
 
+  // In-page quick-launch panel in the hero — lets visitors jump straight to
+  // a project without scrolling, without being an actual slide-out drawer.
+  function initHeroNavPanel() {
+    const list = $("#hero-nav-list");
+    if (!list) return;
+    projects.slice(0, 8).forEach((project) => {
+      const a = document.createElement("a");
+      a.className = "hero-nav-link";
+      a.href = project.type === "software" ? project.githubUrl || project.url : project.url;
+      a.target = "_blank";
+      a.rel = "noopener noreferrer";
+      a.innerHTML = `<span class="dot checking" data-role="dot"></span><span>${project.name}</span>`;
+      list.appendChild(a);
+      const dot = $('[data-role="dot"]', a);
+      wireStatusIndicator(project, dot, null);
+    });
+  }
+
   // -------------------------------------------------------
   // status check (shared by nav badge, status panel, cards)
   // -------------------------------------------------------
@@ -748,6 +766,7 @@
   document.addEventListener("DOMContentLoaded", () => {
     initNav();
     initOrbit();
+    initHeroNavPanel();
     initStats();
     initFeatured();
     initProjectGrid();

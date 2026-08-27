@@ -598,6 +598,71 @@ body.menu-open {
     display: none;
   }
 }
+
+/* In-page quick-launch panel — not a slide-out drawer, just a normal
+   part of the hero's layout. Deliberately narrow and tucked to the
+   screen edge, and only shown once the viewport is wide enough that it
+   can't collide with the large centered headline (which itself can run
+   close to 1000px wide on a big screen) — better to hide it than have
+   it overlap the title on a typical laptop window. */
+.hero-nav-panel {
+  display: none;
+}
+@media (min-width: 1440px) {
+  .hero-nav-panel {
+    display: flex;
+    flex-direction: column;
+    position: absolute;
+    right: 28px;
+    top: 62%;
+    transform: translateY(-50%);
+    width: 208px;
+    max-height: 340px;
+    background: rgba(11, 11, 14, 0.72);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-m);
+    overflow: hidden;
+    z-index: 2;
+  }
+}
+.hero-nav-panel-head {
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--border);
+}
+.hero-nav-panel-list {
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+}
+.hero-nav-link {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 16px;
+  font-size: 13px;
+  color: var(--text-dim);
+  border-bottom: 1px solid var(--border);
+  transition: background 0.2s, color 0.2s, padding-left 0.2s;
+}
+.hero-nav-link:last-child {
+  border-bottom: none;
+}
+.hero-nav-link:hover,
+.hero-nav-link:focus-visible {
+  background: var(--red-dim);
+  color: var(--text);
+  padding-left: 20px;
+}
+.hero-nav-link .dot {
+  flex-shrink: 0;
+}
+.hero-nav-link span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
 .hero-scroll .line {
   width: 1px;
   height: 30px;
@@ -851,6 +916,7 @@ body.menu-open {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  object-position: left top;
   display: block;
   transition: transform 0.5s var(--ease);
 }
@@ -1044,16 +1110,27 @@ body.menu-open {
   border-radius: var(--radius-m);
   border: 1px solid var(--border);
   background: var(--void);
-  aspect-ratio: 16/10;
+  aspect-ratio: 16/9;
   overflow: hidden;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 .featured-visual img {
+  /* sits BELOW the fake browser-bar instead of being covered by it, so no
+     part of the real screenshot is hidden behind the chrome decoration */
+  position: absolute;
+  top: 28px;
+  left: 0;
+  right: 0;
+  bottom: 0;
   width: 100%;
-  height: 100%;
+  height: calc(100% - 28px);
   object-fit: cover;
+  /* screenshots in this project are consistently left/top-heavy (headline
+     + copy anchored top-left) — crop from the right/bottom instead of the
+     default center crop, which was cutting words off mid-line */
+  object-position: left top;
 }
 .featured-visual .browser-bar {
   position: absolute;
@@ -1067,6 +1144,7 @@ body.menu-open {
   align-items: center;
   gap: 6px;
   padding-inline: 10px;
+  z-index: 1;
 }
 .featured-visual .browser-bar span {
   width: 7px;
@@ -1131,7 +1209,23 @@ body.menu-open {
 /* =========================================================
    about
    ========================================================= */
+#about {
+  position: relative;
+  overflow: hidden;
+}
+.about-glow {
+  position: absolute;
+  top: 10%;
+  right: -10%;
+  width: 640px;
+  height: 640px;
+  background: radial-gradient(circle, rgba(255, 51, 25, 0.12) 0%, rgba(255, 51, 25, 0.04) 45%, transparent 72%);
+  pointer-events: none;
+  z-index: 0;
+}
 .about-grid {
+  position: relative;
+  z-index: 1;
   display: grid;
   gap: 40px;
 }
@@ -1151,11 +1245,55 @@ body.menu-open {
   color: var(--text);
   font-weight: 600;
 }
+.principles {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.principle {
+  display: flex;
+  gap: 16px;
+  padding: 20px 4px;
+  border-bottom: 1px solid var(--border);
+  transition: padding-left 0.3s var(--ease), border-color 0.3s var(--ease);
+}
+.principle:last-child {
+  border-bottom: none;
+}
+.principle:hover {
+  padding-left: 12px;
+  border-color: var(--border-red);
+}
+.principle-icon {
+  flex-shrink: 0;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  border: 1px solid var(--border-red);
+  background: var(--red-dim);
+  color: var(--red-ember);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.principle strong {
+  font-family: var(--font-display);
+  font-size: 16px;
+  font-weight: 600;
+  display: block;
+  margin-bottom: 4px;
+}
+.principle p {
+  color: var(--text-dim);
+  font-size: 14px;
+  line-height: 1.5;
+}
 .building-card {
   border: 1px solid var(--border-red);
   background: var(--red-dim);
   border-radius: var(--radius-m);
   padding: 22px 24px;
+  margin-top: 24px;
 }
 .building-card .eyebrow {
   margin-bottom: 10px;
