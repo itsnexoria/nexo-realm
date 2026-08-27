@@ -801,6 +801,29 @@ body.menu-open {
   color: var(--red-ember);
   font-size: 16px;
 }
+.card-thumb {
+  border-radius: var(--radius-s);
+  overflow: hidden;
+  border: 1px solid var(--border);
+  aspect-ratio: 16 / 9;
+  background: var(--void);
+  transition: border-color 0.35s var(--ease);
+}
+.card:hover .card-thumb,
+.card:focus-within .card-thumb {
+  border-color: var(--border-red);
+}
+.card-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.5s var(--ease);
+}
+.card:hover .card-thumb img,
+.card:focus-within .card-thumb img {
+  transform: scale(1.04);
+}
 .card-category {
   font-family: var(--font-mono);
   font-size: 10.5px;

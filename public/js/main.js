@@ -283,6 +283,10 @@
     card.dataset.name = project.name.toLowerCase();
     card.dataset.desc = (project.description || "").toLowerCase();
 
+    const thumbHtml = project.image
+      ? `<div class="card-thumb"><img src="${project.image}" alt="" loading="lazy" width="960" height="540" /></div>`
+      : "";
+
     card.innerHTML = `
       <div class="card-top">
         <div class="card-icon" aria-hidden="true">
@@ -290,12 +294,13 @@
         </div>
         <span class="card-category">${project.category}</span>
       </div>
+      ${thumbHtml}
       <div class="card-body">
         <h3 class="card-name">
           ${project.name}
           <span class="status-pill"><span class="dot checking" data-role="dot"></span></span>
         </h3>
-        <p class="card-desc is-loading" data-role="desc">${project.description || ""}</p>
+        <p class="card-desc${project.description ? "" : " is-loading"}" data-role="desc">${project.description || ""}</p>
       </div>
       <div class="card-foot">
         <span class="card-url">${hostOf(project.url)}</span>
@@ -316,10 +321,13 @@
     const iconEl = $(".card-icon", card);
     fetchMetadata(project).then((meta) => {
       descEl.classList.remove("is-loading");
-      if (meta && meta.description) {
+      if (!project.description && meta && meta.description) {
+        // only fall back to the auto-fetched description when we don't
+        // already have a hand-written one — a curated description is
+        // more trustworthy than whatever a site's <meta> tag says.
         descEl.textContent = meta.description;
         card.dataset.desc = meta.description.toLowerCase();
-      } else if (!project.description) {
+      } else if (!project.description && !meta?.description) {
         descEl.textContent = "No description available yet.";
       }
       if (meta && meta.favicon) {
@@ -487,11 +495,26 @@
       const statusText = $('[data-role="status-text"]', el);
       wireStatusIndicator(project, dot, statusText);
 
+      // A hand-set image wins immediately — no need to wait on a fetch,
+      // and it's more trustworthy than whatever a page's og:image happens
+      // to be set to.
+      const visual = $('[data-role="visual"]', el);
+      if (project.image) {
+        const img = new Image();
+        img.onload = () => {
+          const existing = $(".placeholder-mark", visual);
+          if (existing) existing.remove();
+          img.alt = "";
+          img.loading = "lazy";
+          visual.appendChild(img);
+        };
+        img.src = project.image;
+      }
+
       fetchMetadata(project).then((meta) => {
         if (!meta) return;
-        if (meta.description) $('[data-role="desc"]', el).textContent = meta.description;
-        const visual = $('[data-role="visual"]', el);
-        if (meta.image) {
+        if (!project.description && meta.description) $('[data-role="desc"]', el).textContent = meta.description;
+        if (!project.image && meta.image) {
           const img = new Image();
           img.onload = () => {
             const existing = $(".placeholder-mark", visual);
