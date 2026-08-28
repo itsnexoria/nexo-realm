@@ -802,11 +802,11 @@ body.menu-open {
 }
 .hero-nav-link-icon {
   flex-shrink: 0;
-  width: 26px;
-  height: 26px;
-  border-radius: 8px;
-  background: var(--surface-2);
-  border: 1px solid var(--border);
+  width: 30px;
+  height: 30px;
+  border-radius: 9px;
+  background: var(--red-dim);
+  border: 1px solid var(--border-red);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -821,7 +821,7 @@ body.menu-open {
 .hero-nav-link-icon .fallback {
   font-family: var(--font-display);
   font-weight: 600;
-  font-size: 10px;
+  font-size: 11px;
   color: var(--red-ember);
 }
 .hero-nav-link-text {

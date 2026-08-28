@@ -197,7 +197,7 @@
       a.rel = "noopener noreferrer";
       a.innerHTML = `
         <span class="hero-nav-link-row">
-          <span class="hero-nav-link-icon" aria-hidden="true">${iconMarkup(project)}</span>
+          <span class="hero-nav-link-icon" aria-hidden="true"><span class="fallback">${initials(project.name)}</span></span>
           <span class="hero-nav-link-text">
             <span class="name">${project.name}</span>
             <span class="category">${project.category}</span>
@@ -211,25 +211,11 @@
 
       const dot = $('[data-role="dot"]', a);
       wireStatusIndicator(project, dot, null);
-
-      // websites/tools don't have a config-set icon — try to pick up the
-      // real favicon the same way project cards do
-      if (!project.icon) {
-        const iconEl = $(".hero-nav-link-icon", a);
-        fetchMetadata(project).then((meta) => {
-          if (meta && meta.favicon) {
-            const img = new Image();
-            img.onload = () => {
-              iconEl.innerHTML = "";
-              img.alt = "";
-              img.loading = "lazy";
-              iconEl.appendChild(img);
-            };
-            img.onerror = () => {};
-            img.src = meta.favicon;
-          }
-        });
-      }
+      // Deliberately NOT using real favicons/logos here — this row is only
+      // 26px tall, and detailed marks (fetched favicons or our own 3D
+      // software logos) turn into unrecognizable color smudges at that
+      // size. A clean two-letter monogram reads reliably at any size, so
+      // it's used consistently for every row instead.
     });
 
     // live "X/Y online" counter in the panel header, same honest logic as
