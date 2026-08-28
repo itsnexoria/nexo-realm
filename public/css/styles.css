@@ -683,14 +683,14 @@ body.menu-open {
   max-width: 380px;
   max-height: 400px;
   /* glassy — see-through enough to hint at the orbit rings behind it */
-  background: rgba(13, 13, 16, 0.55);
-  backdrop-filter: blur(18px) saturate(140%);
-  -webkit-backdrop-filter: blur(18px) saturate(140%);
+  background: rgba(13, 13, 16, 0.32);
+  backdrop-filter: blur(20px) saturate(150%);
+  -webkit-backdrop-filter: blur(20px) saturate(150%);
   border: 1px solid var(--border);
   border-radius: var(--radius-l);
   overflow: hidden;
   flex-shrink: 0;
-  box-shadow: 0 24px 60px -20px rgba(0, 0, 0, 0.6);
+  box-shadow: 0 24px 60px -20px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.07);
 }
 .hero-nav-panel::before {
   content: "";
@@ -768,9 +768,9 @@ body.menu-open {
   flex-direction: column;
   align-items: stretch;
   padding: 12px;
-  border: 1px solid var(--border);
+  border: 1px solid var(--border-strong);
   border-radius: var(--radius-s);
-  background: rgba(255, 255, 255, 0.02);
+  background: rgba(20, 20, 24, 0.55);
   transition: background 0.2s, border-color 0.25s var(--ease);
   overflow: hidden;
 }
@@ -802,11 +802,11 @@ body.menu-open {
 }
 .hero-nav-link-icon {
   flex-shrink: 0;
-  width: 30px;
-  height: 30px;
-  border-radius: 9px;
-  background: var(--red-dim);
-  border: 1px solid var(--border-red);
+  width: 32px;
+  height: 32px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, var(--red-ember), var(--red-deep));
+  box-shadow: 0 4px 12px -4px rgba(255, 51, 25, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.2);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -820,9 +820,10 @@ body.menu-open {
 }
 .hero-nav-link-icon .fallback {
   font-family: var(--font-display);
-  font-weight: 600;
+  font-weight: 700;
   font-size: 11px;
-  color: var(--red-ember);
+  letter-spacing: -0.02em;
+  color: #fff;
 }
 .hero-nav-link-text {
   min-width: 0;
