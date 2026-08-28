@@ -199,32 +199,24 @@
     if (!list) return;
     const items = projects.slice(0, 8);
 
-    items.forEach((project) => {
+    items.forEach((project, i) => {
       const a = document.createElement("a");
       a.className = "hero-nav-link";
       a.href = project.type === "software" ? project.githubUrl || project.url : project.url;
       a.target = "_blank";
       a.rel = "noopener noreferrer";
       a.innerHTML = `
-        <span class="hero-nav-link-row">
-          <span class="hero-nav-link-icon" aria-hidden="true"><span class="fallback">${initials(project.name)}</span></span>
-          <span class="hero-nav-link-text">
-            <span class="name">${project.name}</span>
-          </span>
-          <span class="dot checking" data-role="dot"></span>
-          <svg class="hero-nav-link-arrow" width="12" height="12" viewBox="0 0 13 13" fill="none" aria-hidden="true"><path d="M3 10L10 3M10 3H4.5M10 3V8.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <span class="hero-nav-link-index">${String(i + 1).padStart(2, "0")}</span>
+        <span class="hero-nav-link-text">
+          <span class="name">${project.name}</span>
         </span>
-        <span class="hero-nav-link-desc">${project.description || "No description available yet."}</span>
+        <span class="dot checking" data-role="dot"></span>
+        <svg class="hero-nav-link-arrow" width="12" height="12" viewBox="0 0 13 13" fill="none" aria-hidden="true"><path d="M3 10L10 3M10 3H4.5M10 3V8.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
       `;
       list.appendChild(a);
 
       const dot = $('[data-role="dot"]', a);
       wireStatusIndicator(project, dot, null);
-      // Deliberately NOT using real favicons/logos here — this row is only
-      // 26px tall, and detailed marks (fetched favicons or our own 3D
-      // software logos) turn into unrecognizable color smudges at that
-      // size. A clean two-letter monogram reads reliably at any size, so
-      // it's used consistently for every row instead.
     });
 
     // live "X/Y online" counter in the panel header, same honest logic as

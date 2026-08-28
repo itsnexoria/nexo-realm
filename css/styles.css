@@ -741,8 +741,7 @@ body.menu-open {
   position: relative;
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  padding: 10px;
+  padding: 6px;
   overflow-y: auto;
   /* custom scrollbar — thin, rounded, matches the accent color instead
      of the default OS scrollbar */
@@ -765,66 +764,44 @@ body.menu-open {
 .hero-nav-link {
   position: relative;
   display: flex;
-  flex-direction: column;
-  align-items: stretch;
-  flex-shrink: 0;
-  padding: 12px;
-  border: 1px solid var(--border-strong);
-  border-radius: var(--radius-s);
-  background: rgba(20, 20, 24, 0.55);
-  transition: background 0.2s, border-color 0.25s var(--ease);
-  overflow: hidden;
+  align-items: center;
+  gap: 14px;
+  padding: 13px 10px;
+  border-radius: 10px;
+  color: inherit;
+  text-decoration: none;
+  transition: background 0.2s var(--ease);
 }
-.hero-nav-link::before {
+.hero-nav-link + .hero-nav-link {
+  margin-top: 1px;
+}
+.hero-nav-link::after {
   content: "";
   position: absolute;
-  left: 0;
-  top: 0;
-  bottom: 0;
-  width: 2px;
-  background: var(--red-ember);
-  transform: scaleY(0);
-  transition: transform 0.25s var(--ease);
+  left: 10px;
+  right: 10px;
+  bottom: -1px;
+  height: 1px;
+  background: var(--border);
+}
+.hero-nav-link:last-child::after {
+  display: none;
 }
 .hero-nav-link:hover,
 .hero-nav-link:focus-visible {
   background: var(--red-dim);
-  border-color: var(--border-red);
 }
-.hero-nav-link:hover::before,
-.hero-nav-link:focus-visible::before {
-  transform: scaleY(1);
-}
-.hero-nav-link-row {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  width: 100%;
-}
-.hero-nav-link-icon {
+.hero-nav-link-index {
   flex-shrink: 0;
-  width: 32px;
-  height: 32px;
-  border-radius: 10px;
-  background: linear-gradient(135deg, var(--red-ember), var(--red-deep));
-  box-shadow: 0 4px 12px -4px rgba(255, 51, 25, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.2);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  overflow: hidden;
-}
-.hero-nav-link-icon img {
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-  padding: 3px;
-}
-.hero-nav-link-icon .fallback {
-  font-family: var(--font-display);
-  font-weight: 700;
+  width: 18px;
+  font-family: var(--font-mono);
   font-size: 11px;
-  letter-spacing: -0.02em;
-  color: #fff;
+  color: var(--text-faint);
+  transition: color 0.2s var(--ease);
+}
+.hero-nav-link:hover .hero-nav-link-index,
+.hero-nav-link:focus-visible .hero-nav-link-index {
+  color: var(--red-ember);
 }
 .hero-nav-link-text {
   min-width: 0;
@@ -846,7 +823,7 @@ body.menu-open {
   flex-shrink: 0;
   color: var(--text-faint);
   opacity: 0;
-  transform: translate(-4px, 4px);
+  transform: translate(-4px, 0);
   transition: opacity 0.25s var(--ease), transform 0.25s var(--ease), color 0.25s;
 }
 .hero-nav-link:hover .hero-nav-link-arrow,
@@ -854,23 +831,6 @@ body.menu-open {
   opacity: 1;
   transform: translate(0, 0);
   color: var(--red-ember);
-}
-/* short description — hidden by default, expands in on hover/focus */
-.hero-nav-link-desc {
-  display: block;
-  max-height: 0;
-  opacity: 0;
-  font-size: 11.5px;
-  line-height: 1.4;
-  color: var(--text-dim);
-  overflow: hidden;
-  transition: max-height 0.3s var(--ease), opacity 0.25s var(--ease), margin-top 0.3s var(--ease);
-}
-.hero-nav-link:hover .hero-nav-link-desc,
-.hero-nav-link:focus-visible .hero-nav-link-desc {
-  max-height: 60px;
-  opacity: 1;
-  margin-top: 8px;
 }
 .hero-scroll .line {
   width: 1px;
