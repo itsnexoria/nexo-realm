@@ -196,13 +196,16 @@
       a.target = "_blank";
       a.rel = "noopener noreferrer";
       a.innerHTML = `
-        <span class="hero-nav-link-icon" aria-hidden="true">${iconMarkup(project)}</span>
-        <span class="hero-nav-link-text">
-          <span class="name">${project.name}</span>
-          <span class="category">${project.category}</span>
+        <span class="hero-nav-link-row">
+          <span class="hero-nav-link-icon" aria-hidden="true">${iconMarkup(project)}</span>
+          <span class="hero-nav-link-text">
+            <span class="name">${project.name}</span>
+            <span class="category">${project.category}</span>
+          </span>
+          <span class="dot checking" data-role="dot"></span>
+          <svg class="hero-nav-link-arrow" width="12" height="12" viewBox="0 0 13 13" fill="none" aria-hidden="true"><path d="M3 10L10 3M10 3H4.5M10 3V8.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
         </span>
-        <span class="dot checking" data-role="dot"></span>
-        <svg class="hero-nav-link-arrow" width="12" height="12" viewBox="0 0 13 13" fill="none" aria-hidden="true"><path d="M3 10L10 3M10 3H4.5M10 3V8.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <span class="hero-nav-link-desc">${project.description || "No description available yet."}</span>
       `;
       list.appendChild(a);
 
@@ -353,9 +356,7 @@
     card.dataset.name = project.name.toLowerCase();
     card.dataset.desc = (project.description || "").toLowerCase();
 
-    const thumbHtml = project.image
-      ? `<div class="card-thumb"><img src="${project.image}" alt="" loading="lazy" width="960" height="540" /></div>`
-      : "";
+    const thumbHtml = thumbMarkup(project);
 
     card.innerHTML = `
       <div class="card-top">
@@ -424,6 +425,20 @@
     return project.icon ? `<img src="${project.icon}" alt="" loading="lazy" />` : `<span class="fallback">${initials(project.name)}</span>`;
   }
 
+  const EXPAND_ICON = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M8 3H5a2 2 0 0 0-2 2v3M16 3h3a2 2 0 0 1 2 2v3M8 21H5a2 2 0 0 1-2-2v-3M16 21h3a2 2 0 0 0 2-2v-3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+
+  function thumbMarkup(project) {
+    if (!project.image) return "";
+    return `
+      <div class="card-thumb">
+        <img src="${project.image}" alt="" loading="lazy" width="960" height="540" />
+        <button type="button" class="thumb-expand" data-lightbox-src="${project.image}" data-lightbox-caption="${project.name}" aria-label="View a larger preview of ${project.name}">
+          ${EXPAND_ICON}
+        </button>
+      </div>
+    `;
+  }
+
   function softwareCardTemplate(project) {
     const card = document.createElement("article");
     card.className = "card reveal";
@@ -445,9 +460,7 @@
           .join("")}</div>`
       : "";
 
-    const thumbHtml = project.image
-      ? `<div class="card-thumb"><img src="${project.image}" alt="" loading="lazy" width="960" height="540" /></div>`
-      : "";
+    const thumbHtml = thumbMarkup(project);
 
     card.innerHTML = `
       <div class="card-top">
@@ -566,6 +579,9 @@
         <div class="featured-visual" data-role="visual">
           <div class="browser-bar"><span></span><span></span><span></span></div>
           <span class="placeholder-mark">${initials(project.name)}</span>
+          <button type="button" class="thumb-expand" data-role="expand" data-lightbox-caption="${project.name}" aria-label="View a larger preview of ${project.name}" hidden>
+            ${EXPAND_ICON}
+          </button>
         </div>
       `;
       wrap.appendChild(el);
@@ -573,6 +589,12 @@
       const dot = $('[data-role="dot"]', el);
       const statusText = $('[data-role="status-text"]', el);
       wireStatusIndicator(project, dot, statusText);
+
+      const expandBtn = $('[data-role="expand"]', el);
+      const revealExpand = (src) => {
+        expandBtn.dataset.lightboxSrc = src;
+        expandBtn.hidden = false;
+      };
 
       // A hand-set image wins immediately — no need to wait on a fetch,
       // and it's more trustworthy than whatever a page's og:image happens
@@ -586,6 +608,7 @@
           img.alt = "";
           img.loading = "lazy";
           visual.appendChild(img);
+          revealExpand(project.image);
         };
         img.src = project.image;
       }
@@ -601,6 +624,7 @@
             img.alt = "";
             img.loading = "lazy";
             visual.appendChild(img);
+            revealExpand(meta.image);
           };
           img.src = meta.image;
         }
@@ -742,8 +766,54 @@
   }
 
   // -------------------------------------------------------
-  // footer year
+  // lightbox — enlarges any preview screenshot on click
   // -------------------------------------------------------
+  function initLightbox() {
+    const lightbox = $("#lightbox");
+    const img = $("#lightbox-img");
+    const caption = $("#lightbox-caption");
+    const closeBtn = $("#lightbox-close");
+    if (!lightbox || !img) return;
+
+    function open(src, captionText) {
+      img.src = src;
+      img.alt = captionText || "";
+      caption.textContent = captionText || "";
+      lightbox.hidden = false;
+      // next frame, so the hidden->visible transition actually animates
+      requestAnimationFrame(() => lightbox.classList.add("is-open"));
+      document.body.classList.add("menu-open"); // reuses the existing scroll-lock style
+      closeBtn.focus();
+    }
+
+    function close() {
+      lightbox.classList.remove("is-open");
+      document.body.classList.remove("menu-open");
+      setTimeout(() => {
+        lightbox.hidden = true;
+        img.src = "";
+      }, 250);
+    }
+
+    // event delegation — works for every current AND future
+    // [data-lightbox-src] trigger (cards render asynchronously)
+    document.addEventListener("click", (e) => {
+      const trigger = e.target.closest("[data-lightbox-src]");
+      if (!trigger) return;
+      e.preventDefault();
+      e.stopPropagation();
+      open(trigger.dataset.lightboxSrc, trigger.dataset.lightboxCaption);
+    });
+
+    closeBtn.addEventListener("click", close);
+    lightbox.addEventListener("click", (e) => {
+      if (e.target === lightbox) close();
+    });
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape" && lightbox.classList.contains("is-open")) close();
+    });
+  }
+
   function initFooter() {
     const y = $("#footer-year");
     if (y) y.textContent = new Date().getFullYear();
@@ -847,6 +917,7 @@
     initBuilding();
     initNavStatus();
     initFooter();
+    initLightbox();
     initReveal();
     initHeroCursorGlow();
     initMagneticButtons();
