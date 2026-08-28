@@ -20,13 +20,23 @@
       return url;
     }
   };
-  const initials = (name) =>
-    name
-      .split(/\s+/)
-      .map((w) => w[0])
-      .slice(0, 2)
-      .join("")
-      .toUpperCase();
+  const initials = (name) => {
+    const words = name.trim().split(/\s+/);
+    if (words.length > 1) {
+      return words
+        .map((w) => w[0])
+        .slice(0, 2)
+        .join("")
+        .toUpperCase();
+    }
+    // single word (e.g. "NexoSites", "BloxCore") — fall back to the
+    // internal capital letters so it still reads as two letters
+    // instead of shrinking to a single, sparser-looking initial.
+    const word = words[0] || "";
+    const caps = word.match(/[A-Z]/g);
+    if (caps && caps.length > 1) return caps.slice(0, 2).join("").toUpperCase();
+    return word.slice(0, 2).toUpperCase();
+  };
 
   function readCache(key, ttl) {
     try {
@@ -200,7 +210,6 @@
           <span class="hero-nav-link-icon" aria-hidden="true"><span class="fallback">${initials(project.name)}</span></span>
           <span class="hero-nav-link-text">
             <span class="name">${project.name}</span>
-            <span class="category">${project.category}</span>
           </span>
           <span class="dot checking" data-role="dot"></span>
           <svg class="hero-nav-link-arrow" width="12" height="12" viewBox="0 0 13 13" fill="none" aria-hidden="true"><path d="M3 10L10 3M10 3H4.5M10 3V8.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>

@@ -767,6 +767,7 @@ body.menu-open {
   display: flex;
   flex-direction: column;
   align-items: stretch;
+  flex-shrink: 0;
   padding: 12px;
   border: 1px solid var(--border-strong);
   border-radius: var(--radius-s);
@@ -837,15 +838,6 @@ body.menu-open {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-}
-.hero-nav-link-text .category {
-  display: block;
-  font-family: var(--font-mono);
-  font-size: 10.5px;
-  color: var(--text-faint);
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  margin-top: 1px;
 }
 .hero-nav-link .dot {
   flex-shrink: 0;
