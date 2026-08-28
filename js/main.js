@@ -182,6 +182,65 @@
     });
   }
 
+  // In-page quick-launch panel in the hero — lets visitors jump straight to
+  // a project without scrolling, without being an actual slide-out drawer.
+  function initHeroNavPanel() {
+    const list = $("#hero-nav-list");
+    if (!list) return;
+    const items = projects.slice(0, 8);
+
+    items.forEach((project) => {
+      const a = document.createElement("a");
+      a.className = "hero-nav-link";
+      a.href = project.type === "software" ? project.githubUrl || project.url : project.url;
+      a.target = "_blank";
+      a.rel = "noopener noreferrer";
+      a.innerHTML = `
+        <span class="hero-nav-link-row">
+          <span class="hero-nav-link-icon" aria-hidden="true"><span class="fallback">${initials(project.name)}</span></span>
+          <span class="hero-nav-link-text">
+            <span class="name">${project.name}</span>
+            <span class="category">${project.category}</span>
+          </span>
+          <span class="dot checking" data-role="dot"></span>
+          <svg class="hero-nav-link-arrow" width="12" height="12" viewBox="0 0 13 13" fill="none" aria-hidden="true"><path d="M3 10L10 3M10 3H4.5M10 3V8.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </span>
+        <span class="hero-nav-link-desc">${project.description || "No description available yet."}</span>
+      `;
+      list.appendChild(a);
+
+      const dot = $('[data-role="dot"]', a);
+      wireStatusIndicator(project, dot, null);
+      // Deliberately NOT using real favicons/logos here — this row is only
+      // 26px tall, and detailed marks (fetched favicons or our own 3D
+      // software logos) turn into unrecognizable color smudges at that
+      // size. A clean two-letter monogram reads reliably at any size, so
+      // it's used consistently for every row instead.
+    });
+
+    // live "X/Y online" counter in the panel header, same honest logic as
+    // the ecosystem status panel — never claims a project is down when a
+    // check simply couldn't be reached
+    const countEl = $("#hero-nav-count");
+    if (countEl) {
+      const states = new Map();
+      liveProjects.forEach((project) => {
+        subscribeStatus(project.url, (data) => {
+          states.set(project.url, data.online);
+          const values = Array.from(states.values());
+          if (values.length < liveProjects.length) return;
+          const { dotClass } = summarizeStatus(values, liveProjects.length);
+          const online = values.filter((v) => v === true).length;
+          const dot = $(".dot", countEl);
+          const labelEl = $("[data-role='label']", countEl);
+          dot.classList.remove("online", "offline", "checking", "unknown");
+          dot.classList.add(dotClass);
+          labelEl.textContent = dotClass === "unknown" ? "Unavailable" : `${online}/${liveProjects.length} online`;
+        });
+      });
+    }
+  }
+
   // -------------------------------------------------------
   // status check (shared by nav badge, status panel, cards)
   // -------------------------------------------------------
@@ -283,19 +342,22 @@
     card.dataset.name = project.name.toLowerCase();
     card.dataset.desc = (project.description || "").toLowerCase();
 
+    const thumbHtml = thumbMarkup(project);
+
     card.innerHTML = `
       <div class="card-top">
         <div class="card-icon" aria-hidden="true">
-          <span class="fallback">${initials(project.name)}</span>
+          ${iconMarkup(project)}
         </div>
         <span class="card-category">${project.category}</span>
       </div>
+      ${thumbHtml}
       <div class="card-body">
         <h3 class="card-name">
           ${project.name}
           <span class="status-pill"><span class="dot checking" data-role="dot"></span></span>
         </h3>
-        <p class="card-desc is-loading" data-role="desc">${project.description || ""}</p>
+        <p class="card-desc${project.description ? "" : " is-loading"}" data-role="desc">${project.description || ""}</p>
       </div>
       <div class="card-foot">
         <span class="card-url">${hostOf(project.url)}</span>
@@ -316,10 +378,13 @@
     const iconEl = $(".card-icon", card);
     fetchMetadata(project).then((meta) => {
       descEl.classList.remove("is-loading");
-      if (meta && meta.description) {
+      if (!project.description && meta && meta.description) {
+        // only fall back to the auto-fetched description when we don't
+        // already have a hand-written one — a curated description is
+        // more trustworthy than whatever a site's <meta> tag says.
         descEl.textContent = meta.description;
         card.dataset.desc = meta.description.toLowerCase();
-      } else if (!project.description) {
+      } else if (!project.description && !meta?.description) {
         descEl.textContent = "No description available yet.";
       }
       if (meta && meta.favicon) {
@@ -342,6 +407,24 @@
   // show version/platform tags, a static build-state badge, and explicit
   // links (GitHub / Download / Docs) instead of a single whole-card link,
   // since a repo isn't "visited" the way a website is.
+  function iconMarkup(project) {
+    return project.icon ? `<img src="${project.icon}" alt="" loading="lazy" />` : `<span class="fallback">${initials(project.name)}</span>`;
+  }
+
+  const EXPAND_ICON = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M8 3H5a2 2 0 0 0-2 2v3M16 3h3a2 2 0 0 1 2 2v3M8 21H5a2 2 0 0 1-2-2v-3M16 21h3a2 2 0 0 0 2-2v-3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+
+  function thumbMarkup(project) {
+    if (!project.image) return "";
+    return `
+      <div class="card-thumb">
+        <img src="${project.image}" alt="" loading="lazy" width="960" height="540" />
+        <button type="button" class="thumb-expand" data-lightbox-src="${project.image}" data-lightbox-caption="${project.name}" aria-label="View a larger preview of ${project.name}">
+          ${EXPAND_ICON}
+        </button>
+      </div>
+    `;
+  }
+
   function softwareCardTemplate(project) {
     const card = document.createElement("article");
     card.className = "card reveal";
@@ -363,13 +446,16 @@
           .join("")}</div>`
       : "";
 
+    const thumbHtml = thumbMarkup(project);
+
     card.innerHTML = `
       <div class="card-top">
         <div class="card-icon" aria-hidden="true">
-          <span class="fallback">${initials(project.name)}</span>
+          ${iconMarkup(project)}
         </div>
         <span class="card-category">${project.category}</span>
       </div>
+      ${thumbHtml}
       <div class="card-body">
         <h3 class="card-name">
           ${project.name}
@@ -479,6 +565,9 @@
         <div class="featured-visual" data-role="visual">
           <div class="browser-bar"><span></span><span></span><span></span></div>
           <span class="placeholder-mark">${initials(project.name)}</span>
+          <button type="button" class="thumb-expand" data-role="expand" data-lightbox-caption="${project.name}" aria-label="View a larger preview of ${project.name}" hidden>
+            ${EXPAND_ICON}
+          </button>
         </div>
       `;
       wrap.appendChild(el);
@@ -487,11 +576,33 @@
       const statusText = $('[data-role="status-text"]', el);
       wireStatusIndicator(project, dot, statusText);
 
+      const expandBtn = $('[data-role="expand"]', el);
+      const revealExpand = (src) => {
+        expandBtn.dataset.lightboxSrc = src;
+        expandBtn.hidden = false;
+      };
+
+      // A hand-set image wins immediately — no need to wait on a fetch,
+      // and it's more trustworthy than whatever a page's og:image happens
+      // to be set to.
+      const visual = $('[data-role="visual"]', el);
+      if (project.image) {
+        const img = new Image();
+        img.onload = () => {
+          const existing = $(".placeholder-mark", visual);
+          if (existing) existing.remove();
+          img.alt = "";
+          img.loading = "lazy";
+          visual.appendChild(img);
+          revealExpand(project.image);
+        };
+        img.src = project.image;
+      }
+
       fetchMetadata(project).then((meta) => {
         if (!meta) return;
-        if (meta.description) $('[data-role="desc"]', el).textContent = meta.description;
-        const visual = $('[data-role="visual"]', el);
-        if (meta.image) {
+        if (!project.description && meta.description) $('[data-role="desc"]', el).textContent = meta.description;
+        if (!project.image && meta.image) {
           const img = new Image();
           img.onload = () => {
             const existing = $(".placeholder-mark", visual);
@@ -499,6 +610,7 @@
             img.alt = "";
             img.loading = "lazy";
             visual.appendChild(img);
+            revealExpand(meta.image);
           };
           img.src = meta.image;
         }
@@ -583,6 +695,23 @@
     });
   }
 
+  // Compact icon-only social row in the nav, replacing the old status
+  // pill + Explore button — same NEXORIA_SOCIALS source as the full grid
+  // in the Socials section, just the first few so the header stays tidy.
+  function initNavSocials() {
+    const wrap = $("#nav-socials");
+    if (!wrap) return;
+    NEXORIA_SOCIALS.slice(0, 4).forEach((s) => {
+      const a = document.createElement("a");
+      a.href = s.url;
+      a.target = "_blank";
+      a.rel = "noopener noreferrer";
+      a.setAttribute("aria-label", s.name);
+      a.innerHTML = ICONS[s.icon] || "";
+      wrap.appendChild(a);
+    });
+  }
+
   // -------------------------------------------------------
   // currently building
   // -------------------------------------------------------
@@ -600,6 +729,8 @@
   // "online" without a real check backing it up.
   // -------------------------------------------------------
   function initNavStatus() {
+    // #nav-status-pill was removed from the header in favor of the social
+    // icons row — this now only drives the hero badge, filtered gracefully.
     const pills = [$("#nav-status-pill"), $("#hero-status-pill")].filter(Boolean);
     if (!pills.length) return;
     const states = new Map();
@@ -621,24 +752,162 @@
   }
 
   // -------------------------------------------------------
-  // footer year
+  // lightbox — enlarges any preview screenshot on click
   // -------------------------------------------------------
+  function initLightbox() {
+    const lightbox = $("#lightbox");
+    const img = $("#lightbox-img");
+    const caption = $("#lightbox-caption");
+    const closeBtn = $("#lightbox-close");
+    if (!lightbox || !img) return;
+
+    function open(src, captionText) {
+      img.src = src;
+      img.alt = captionText || "";
+      caption.textContent = captionText || "";
+      lightbox.hidden = false;
+      // next frame, so the hidden->visible transition actually animates
+      requestAnimationFrame(() => lightbox.classList.add("is-open"));
+      document.body.classList.add("menu-open"); // reuses the existing scroll-lock style
+      closeBtn.focus();
+    }
+
+    function close() {
+      lightbox.classList.remove("is-open");
+      document.body.classList.remove("menu-open");
+      setTimeout(() => {
+        lightbox.hidden = true;
+        img.src = "";
+      }, 250);
+    }
+
+    // event delegation — works for every current AND future
+    // [data-lightbox-src] trigger (cards render asynchronously)
+    document.addEventListener("click", (e) => {
+      const trigger = e.target.closest("[data-lightbox-src]");
+      if (!trigger) return;
+      e.preventDefault();
+      e.stopPropagation();
+      open(trigger.dataset.lightboxSrc, trigger.dataset.lightboxCaption);
+    });
+
+    closeBtn.addEventListener("click", close);
+    lightbox.addEventListener("click", (e) => {
+      if (e.target === lightbox) close();
+    });
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape" && lightbox.classList.contains("is-open")) close();
+    });
+  }
+
   function initFooter() {
     const y = $("#footer-year");
     if (y) y.textContent = new Date().getFullYear();
   }
 
+  // -------------------------------------------------------
+  // micro-interactions — skipped entirely under prefers-reduced-motion
+  // -------------------------------------------------------
+  const REDUCE_MOTION = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const HAS_FINE_POINTER = window.matchMedia("(pointer: fine)").matches;
+
+  // Cursor-reactive ambient glow in the hero — a subtle radial highlight
+  // that follows the pointer, layered under the content.
+  function initHeroCursorGlow() {
+    if (REDUCE_MOTION || !HAS_FINE_POINTER) return;
+    const hero = $(".hero");
+    if (!hero) return;
+    const glow = document.createElement("div");
+    glow.className = "hero-cursor-glow";
+    glow.setAttribute("aria-hidden", "true");
+    hero.appendChild(glow);
+    hero.addEventListener("pointermove", (e) => {
+      const rect = hero.getBoundingClientRect();
+      glow.style.setProperty("--mx", `${e.clientX - rect.left}px`);
+      glow.style.setProperty("--my", `${e.clientY - rect.top}px`);
+      glow.style.opacity = "1";
+    });
+    hero.addEventListener("pointerleave", () => {
+      glow.style.opacity = "0";
+    });
+  }
+
+  // Magnetic pull — the button drifts slightly toward the cursor within a
+  // small radius, and snaps back on leave. A light-touch version, not a
+  // dramatic one.
+  function initMagneticButtons() {
+    if (REDUCE_MOTION || !HAS_FINE_POINTER) return;
+    $$(".btn-primary, .btn-ghost").forEach((btn) => {
+      btn.addEventListener("pointermove", (e) => {
+        const rect = btn.getBoundingClientRect();
+        const x = e.clientX - rect.left - rect.width / 2;
+        const y = e.clientY - rect.top - rect.height / 2;
+        btn.style.transform = `translate(${x * 0.18}px, ${y * 0.18 - 2}px)`;
+      });
+      btn.addEventListener("pointerleave", () => {
+        btn.style.transform = "";
+      });
+    });
+  }
+
+  // Subtle tilt on project cards — follows the pointer within the card,
+  // combined with the existing hover-lift.
+  function initCardTilt() {
+    if (REDUCE_MOTION || !HAS_FINE_POINTER) return;
+    document.addEventListener("pointermove", (e) => {
+      const card = e.target.closest?.(".card");
+      if (!card) return;
+      const rect = card.getBoundingClientRect();
+      const px = (e.clientX - rect.left) / rect.width - 0.5;
+      const py = (e.clientY - rect.top) / rect.height - 0.5;
+      card.style.transform = `perspective(800px) translateY(-4px) rotateX(${(-py * 4).toFixed(2)}deg) rotateY(${(px * 4).toFixed(2)}deg)`;
+    });
+    document.addEventListener(
+      "pointerout",
+      (e) => {
+        const card = e.target.closest?.(".card");
+        if (card && !card.contains(e.relatedTarget)) card.style.transform = "";
+      },
+      true
+    );
+  }
+
+  // Highlights the nav link for whichever section is currently in view.
+  function initScrollSpy() {
+    const sections = ["projects", "status", "about", "socials"].map((id) => $(`#${id}`)).filter(Boolean);
+    const links = $$(".nav-links a, .mobile-menu a");
+    if (!sections.length || !links.length || !("IntersectionObserver" in window)) return;
+    const io = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (!entry.isIntersecting) return;
+          const id = entry.target.id;
+          links.forEach((a) => a.toggleAttribute("aria-current", a.getAttribute("href") === `#${id}`));
+        });
+      },
+      { rootMargin: "-45% 0px -50% 0px" }
+    );
+    sections.forEach((s) => io.observe(s));
+  }
+
   document.addEventListener("DOMContentLoaded", () => {
     initNav();
     initOrbit();
+    initHeroNavPanel();
     initStats();
     initFeatured();
     initProjectGrid();
     initStatusPanel();
     initSocials();
+    initNavSocials();
     initBuilding();
     initNavStatus();
     initFooter();
+    initLightbox();
     initReveal();
+    initHeroCursorGlow();
+    initMagneticButtons();
+    initCardTilt();
+    initScrollSpy();
   });
 })();

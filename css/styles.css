@@ -71,6 +71,30 @@ body {
   -webkit-font-smoothing: antialiased;
   overflow-x: hidden;
 }
+
+/* site-wide custom scrollbar — same red-ember treatment used everywhere
+   else, instead of the default OS scrollbar */
+html {
+  scrollbar-width: thin;
+  scrollbar-color: var(--red-ember) var(--void);
+}
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-track {
+  background: var(--void);
+}
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(var(--red-ember), var(--red-deep));
+  border-radius: 100px;
+  border: 2px solid var(--void);
+  background-clip: padding-box;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--red-ember);
+  background-clip: padding-box;
+}
 img {
   max-width: 100%;
   display: block;
@@ -244,6 +268,26 @@ svg {
   color: var(--text-dim);
   transition: color 0.2s;
   position: relative;
+  padding-bottom: 2px;
+}
+.nav-links a::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: -2px;
+  height: 1px;
+  width: 100%;
+  background: var(--red-ember);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.3s var(--ease);
+}
+.nav-links a:hover::after,
+.nav-links a:focus-visible::after {
+  transform: scaleX(1);
+}
+.nav-links a[aria-current="true"]::after {
+  transform: scaleX(1);
 }
 .nav-links a:hover {
   color: var(--text);
@@ -253,26 +297,36 @@ svg {
   align-items: center;
   gap: 20px;
 }
-.nav-status {
+.nav-socials {
   display: none;
+  align-items: center;
+  gap: 8px;
 }
-@media (min-width: 900px) {
-  .nav-status {
+@media (min-width: 640px) {
+  .nav-socials {
     display: flex;
   }
 }
-.nav-cta {
-  border: 1px solid var(--border-strong);
-  padding: 9px 18px;
-  border-radius: 100px;
-  font-size: 13px;
-  font-weight: 500;
-  transition: border-color 0.2s, background 0.2s, transform 0.2s;
+.nav-socials a {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-dim);
+  transition: border-color 0.2s, background 0.2s, color 0.2s, transform 0.2s;
 }
-.nav-cta:hover {
+.nav-socials a:hover {
   border-color: var(--border-red);
   background: var(--red-dim);
+  color: var(--red-ember);
   transform: translateY(-1px);
+}
+.nav-socials svg {
+  width: 15px;
+  height: 15px;
 }
 .nav-toggle {
   display: flex;
@@ -389,6 +443,10 @@ body.menu-open {
   display: flex;
   align-items: center;
   padding-top: 100px;
+  /* guarantees breathing room below the CTAs before the stats divider,
+     even on shorter windows where the content nearly fills the section
+     and centering alone wouldn't leave any gap underneath */
+  padding-bottom: clamp(40px, 6vh, 80px);
   overflow: hidden;
 }
 .hero-glow {
@@ -401,6 +459,15 @@ body.menu-open {
   background: radial-gradient(circle, rgba(255, 51, 25, 0.16) 0%, rgba(255, 51, 25, 0.05) 38%, transparent 68%);
   pointer-events: none;
   z-index: -1;
+}
+.hero-cursor-glow {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  opacity: 0;
+  transition: opacity 0.4s var(--ease);
+  pointer-events: none;
+  background: radial-gradient(500px circle at var(--mx, 50%) var(--my, 50%), rgba(255, 106, 69, 0.1), transparent 60%);
 }
 .orbit-field {
   position: absolute;
@@ -450,6 +517,22 @@ body.menu-open {
   letter-spacing: 0.04em;
 }
 
+.hero-layout {
+  position: relative;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 44px;
+}
+@media (min-width: 1024px) {
+  .hero-layout {
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    gap: 56px;
+  }
+}
 .hero-inner {
   position: relative;
   width: 100%;
@@ -505,6 +588,28 @@ body.menu-open {
   justify-content: center;
   gap: 16px;
   margin-top: 40px;
+}
+/* Two-column layout once there's room for the nav panel beside the
+   headline. Placed after the base rules above (same selectors, so
+   source order is what makes this win at matching widths). */
+@media (min-width: 1024px) {
+  .hero-inner {
+    flex: 1 1 auto;
+    min-width: 0;
+    text-align: left;
+  }
+  .hero-desc {
+    margin: 30px 0 0;
+  }
+  .hero-ctas {
+    justify-content: flex-start;
+  }
+  /* the headline gets a bit of room taken by the nav panel now, so it
+     scales down a notch to comfortably fit next to it rather than risk
+     overlapping — still large, just not edge-to-edge large */
+  .hero-title {
+    font-size: clamp(40px, 7.5vw, 128px);
+  }
 }
 .btn {
   display: inline-flex;
@@ -564,6 +669,216 @@ body.menu-open {
   .hero-scroll {
     display: none;
   }
+}
+
+/* In-page quick-launch list card — a normal part of the hero's layout
+   flow, not a slide-out drawer. Stacks full-width below the headline on
+   small/medium screens, sits beside it as a fixed-width card once
+   .hero-layout switches to a row at 1024px (see above). */
+.hero-nav-panel {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 380px;
+  max-height: 400px;
+  /* glassy — see-through enough to hint at the orbit rings behind it */
+  background: rgba(13, 13, 16, 0.32);
+  backdrop-filter: blur(20px) saturate(150%);
+  -webkit-backdrop-filter: blur(20px) saturate(150%);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-l);
+  overflow: hidden;
+  flex-shrink: 0;
+  box-shadow: 0 24px 60px -20px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.07);
+}
+.hero-nav-panel::before {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(160deg, rgba(255, 106, 69, 0.4), rgba(255, 106, 69, 0) 45%);
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+}
+.hero-nav-panel::after {
+  content: "";
+  position: absolute;
+  top: -60%;
+  right: -40%;
+  width: 70%;
+  height: 70%;
+  background: radial-gradient(circle, rgba(255, 51, 25, 0.14), transparent 70%);
+  pointer-events: none;
+}
+@media (min-width: 1024px) {
+  .hero-nav-panel {
+    width: 288px;
+    max-width: none;
+  }
+}
+.hero-nav-panel-head {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 16px 18px;
+  border-bottom: 1px solid var(--border);
+}
+.hero-nav-panel-count {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--text-faint);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.hero-nav-panel-list {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 10px;
+  overflow-y: auto;
+  /* custom scrollbar — thin, rounded, matches the accent color instead
+     of the default OS scrollbar */
+  scrollbar-width: thin;
+  scrollbar-color: var(--red-ember) transparent;
+}
+.hero-nav-panel-list::-webkit-scrollbar {
+  width: 6px;
+}
+.hero-nav-panel-list::-webkit-scrollbar-track {
+  background: transparent;
+}
+.hero-nav-panel-list::-webkit-scrollbar-thumb {
+  background: linear-gradient(var(--red-ember), var(--red-deep));
+  border-radius: 100px;
+}
+.hero-nav-panel-list::-webkit-scrollbar-thumb:hover {
+  background: var(--red-ember);
+}
+.hero-nav-link {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  padding: 12px;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-s);
+  background: rgba(20, 20, 24, 0.55);
+  transition: background 0.2s, border-color 0.25s var(--ease);
+  overflow: hidden;
+}
+.hero-nav-link::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: var(--red-ember);
+  transform: scaleY(0);
+  transition: transform 0.25s var(--ease);
+}
+.hero-nav-link:hover,
+.hero-nav-link:focus-visible {
+  background: var(--red-dim);
+  border-color: var(--border-red);
+}
+.hero-nav-link:hover::before,
+.hero-nav-link:focus-visible::before {
+  transform: scaleY(1);
+}
+.hero-nav-link-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+}
+.hero-nav-link-icon {
+  flex-shrink: 0;
+  width: 32px;
+  height: 32px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, var(--red-ember), var(--red-deep));
+  box-shadow: 0 4px 12px -4px rgba(255, 51, 25, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+.hero-nav-link-icon img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  padding: 3px;
+}
+.hero-nav-link-icon .fallback {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 11px;
+  letter-spacing: -0.02em;
+  color: #fff;
+}
+.hero-nav-link-text {
+  min-width: 0;
+  flex: 1;
+}
+.hero-nav-link-text .name {
+  display: block;
+  font-size: 13.5px;
+  font-weight: 500;
+  color: var(--text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.hero-nav-link-text .category {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  color: var(--text-faint);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-top: 1px;
+}
+.hero-nav-link .dot {
+  flex-shrink: 0;
+}
+.hero-nav-link-arrow {
+  flex-shrink: 0;
+  color: var(--text-faint);
+  opacity: 0;
+  transform: translate(-4px, 4px);
+  transition: opacity 0.25s var(--ease), transform 0.25s var(--ease), color 0.25s;
+}
+.hero-nav-link:hover .hero-nav-link-arrow,
+.hero-nav-link:focus-visible .hero-nav-link-arrow {
+  opacity: 1;
+  transform: translate(0, 0);
+  color: var(--red-ember);
+}
+/* short description — hidden by default, expands in on hover/focus */
+.hero-nav-link-desc {
+  display: block;
+  max-height: 0;
+  opacity: 0;
+  font-size: 11.5px;
+  line-height: 1.4;
+  color: var(--text-dim);
+  overflow: hidden;
+  transition: max-height 0.3s var(--ease), opacity 0.25s var(--ease), margin-top 0.3s var(--ease);
+}
+.hero-nav-link:hover .hero-nav-link-desc,
+.hero-nav-link:focus-visible .hero-nav-link-desc {
+  max-height: 60px;
+  opacity: 1;
+  margin-top: 8px;
 }
 .hero-scroll .line {
   width: 1px;
@@ -793,13 +1108,44 @@ body.menu-open {
 .card-icon img {
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: contain;
+  padding: 5px;
 }
 .card-icon .fallback {
   font-family: var(--font-display);
   font-weight: 600;
   color: var(--red-ember);
   font-size: 16px;
+}
+.card-thumb {
+  position: relative;
+  border-radius: var(--radius-s);
+  overflow: hidden;
+  border: 1px solid var(--border);
+  aspect-ratio: 16 / 9;
+  background: var(--void);
+  transition: border-color 0.35s var(--ease);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.card:hover .card-thumb,
+.card:focus-within .card-thumb {
+  border-color: var(--border-red);
+}
+.card-thumb img {
+  width: 100%;
+  height: 100%;
+  /* contain, not cover — guarantees the full screenshot is always
+     visible with no cropped text, at the cost of a small letterbox
+     when a screenshot's aspect ratio doesn't exactly match the card */
+  object-fit: contain;
+  display: block;
+  transition: transform 0.5s var(--ease);
+}
+.card:hover .card-thumb img,
+.card:focus-within .card-thumb img {
+  transform: scale(1.04);
 }
 .card-category {
   font-family: var(--font-mono);
@@ -987,16 +1333,26 @@ body.menu-open {
   border-radius: var(--radius-m);
   border: 1px solid var(--border);
   background: var(--void);
-  aspect-ratio: 16/10;
+  aspect-ratio: 16/9;
   overflow: hidden;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 .featured-visual img {
+  /* sits BELOW the fake browser-bar instead of being covered by it, so no
+     part of the real screenshot is hidden behind the chrome decoration */
+  position: absolute;
+  top: 28px;
+  left: 0;
+  right: 0;
+  bottom: 0;
   width: 100%;
-  height: 100%;
-  object-fit: cover;
+  height: calc(100% - 28px);
+  /* contain, not cover — guarantees the full screenshot is always visible
+     with no cropped text, at the cost of a small letterbox when a
+     screenshot's aspect ratio doesn't exactly match the frame */
+  object-fit: contain;
 }
 .featured-visual .browser-bar {
   position: absolute;
@@ -1010,6 +1366,7 @@ body.menu-open {
   align-items: center;
   gap: 6px;
   padding-inline: 10px;
+  z-index: 1;
 }
 .featured-visual .browser-bar span {
   width: 7px;
@@ -1074,7 +1431,23 @@ body.menu-open {
 /* =========================================================
    about
    ========================================================= */
+#about {
+  position: relative;
+  overflow: hidden;
+}
+.about-glow {
+  position: absolute;
+  top: 10%;
+  right: -10%;
+  width: 640px;
+  height: 640px;
+  background: radial-gradient(circle, rgba(255, 51, 25, 0.12) 0%, rgba(255, 51, 25, 0.04) 45%, transparent 72%);
+  pointer-events: none;
+  z-index: 0;
+}
 .about-grid {
+  position: relative;
+  z-index: 1;
   display: grid;
   gap: 40px;
 }
@@ -1094,11 +1467,55 @@ body.menu-open {
   color: var(--text);
   font-weight: 600;
 }
+.principles {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.principle {
+  display: flex;
+  gap: 16px;
+  padding: 20px 4px;
+  border-bottom: 1px solid var(--border);
+  transition: padding-left 0.3s var(--ease), border-color 0.3s var(--ease);
+}
+.principle:last-child {
+  border-bottom: none;
+}
+.principle:hover {
+  padding-left: 12px;
+  border-color: var(--border-red);
+}
+.principle-icon {
+  flex-shrink: 0;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  border: 1px solid var(--border-red);
+  background: var(--red-dim);
+  color: var(--red-ember);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.principle strong {
+  font-family: var(--font-display);
+  font-size: 16px;
+  font-weight: 600;
+  display: block;
+  margin-bottom: 4px;
+}
+.principle p {
+  color: var(--text-dim);
+  font-size: 14px;
+  line-height: 1.5;
+}
 .building-card {
   border: 1px solid var(--border-red);
   background: var(--red-dim);
   border-radius: var(--radius-m);
   padding: 22px 24px;
+  margin-top: 24px;
 }
 .building-card .eyebrow {
   margin-bottom: 10px;
@@ -1226,4 +1643,116 @@ body.menu-open {
 }
 .skip-link:focus {
   left: 0;
+}
+
+/* =========================================================
+   preview expand (thumb-expand button + lightbox)
+   ========================================================= */
+.thumb-expand {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  z-index: 2;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: rgba(5, 5, 6, 0.65);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transform: scale(0.85);
+  transition: opacity 0.2s var(--ease), transform 0.2s var(--ease), border-color 0.2s, background 0.2s;
+}
+.card:hover .thumb-expand,
+.card:focus-within .thumb-expand,
+.featured:hover .thumb-expand,
+.featured:focus-within .thumb-expand {
+  opacity: 1;
+  transform: scale(1);
+}
+.thumb-expand:hover,
+.thumb-expand:focus-visible {
+  border-color: var(--border-red);
+  background: var(--red-deep);
+  opacity: 1;
+  transform: scale(1);
+}
+.featured-visual .thumb-expand {
+  top: 36px; /* clears the fake browser-bar so it doesn't sit on the dots */
+}
+
+.lightbox {
+  position: fixed;
+  inset: 0;
+  z-index: 999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+  background: rgba(3, 3, 4, 0.88);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s var(--ease);
+}
+.lightbox.is-open {
+  opacity: 1;
+  pointer-events: auto;
+}
+.lightbox-figure {
+  margin: 0;
+  max-width: min(1100px, 90vw);
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  transform: scale(0.96);
+  transition: transform 0.25s var(--ease);
+}
+.lightbox.is-open .lightbox-figure {
+  transform: scale(1);
+}
+.lightbox-figure img {
+  max-width: 100%;
+  max-height: 80vh;
+  border-radius: var(--radius-m);
+  border: 1px solid var(--border-strong);
+  box-shadow: 0 30px 80px -20px rgba(0, 0, 0, 0.7);
+  object-fit: contain;
+}
+.lightbox-figure figcaption {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--text-dim);
+  text-align: center;
+}
+.lightbox-figure figcaption:empty {
+  display: none;
+}
+.lightbox-close {
+  position: absolute;
+  top: 24px;
+  right: 24px;
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  border: 1px solid var(--border-strong);
+  background: var(--surface);
+  color: var(--text);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: border-color 0.2s, background 0.2s, transform 0.2s;
+}
+.lightbox-close:hover {
+  border-color: var(--border-red);
+  background: var(--red-dim);
+  transform: rotate(90deg);
 }

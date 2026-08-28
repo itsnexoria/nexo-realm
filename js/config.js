@@ -17,6 +17,10 @@
 // type:     "website" | "software" | "tool" | "service"
 // category: any short label — also drives the filter pills below
 // featured: true puts it in the large cinematic slot up top
+// image:    path to a screenshot/preview (e.g. "/assets/previews/name.jpg")
+//           shown in the featured slot and as a thumbnail on grid cards.
+//           Leave unset to fall back to whatever /api/metadata finds
+//           (a site's own og:image), or no thumbnail at all if it finds nothing.
 // status:   leave unset to let the live status checker decide.
 //           set to "development" to permanently show a build badge
 //           instead of an online/offline dot (e.g. unreleased software).
@@ -27,6 +31,8 @@
 //   githubUrl   — repo link; also used as the click-through if set
 //   downloadUrl — direct download/release link, shown as its own button
 //   docsUrl     — documentation link, shown as its own button
+//   icon        — path to a square logo mark (e.g. "/assets/icons/name.png"),
+//                 shown in the small card-icon badge instead of initials
 // Only the ones you actually set are rendered — no field is required.
 const NEXORIA_PROJECTS = [
   {
@@ -44,7 +50,8 @@ const NEXORIA_PROJECTS = [
     url: "https://boost.nexorealm.org",
     category: "Tools",
     type: "tool",
-    description: "Boosting and optimization utility.",
+    description: "Grow your socials by completing tasks for other creators — earn points, then spend them on real followers, likes, views, and Discord members.",
+    image: "/assets/previews/nexo-boost.jpg",
     featured: true,
   },
   {
@@ -53,7 +60,8 @@ const NEXORIA_PROJECTS = [
     url: "https://nexosites.xyz",
     category: "Websites",
     type: "website",
-    description: "A wider network of web projects and experiments.",
+    description: "Premium, fast, mobile-ready websites for businesses — you buy the domain, NexoSites handles everything else.",
+    image: "/assets/previews/nexosites.jpg",
   },
   {
     id: "watch-log",
@@ -61,7 +69,8 @@ const NEXORIA_PROJECTS = [
     url: "https://list.nexosites.xyz",
     category: "Tracking",
     type: "tool",
-    description: "A watch and log style tracking project.",
+    description: "A personal anime viewing record — track titles, episodes watched, and watch time.",
+    image: "/assets/previews/watch-log.jpg",
   },
   {
     id: "bloxcore",
@@ -69,7 +78,8 @@ const NEXORIA_PROJECTS = [
     url: "https://blox.nexorealm.org",
     category: "Gaming",
     type: "website",
-    description: "Blox Fruits trading value database, built for the community.",
+    description: "A Blox Fruits community board — complete bounties, submit proof, and climb the ranks from Rookie to Pirate King.",
+    image: "/assets/previews/bloxcore.jpg",
     aliases: ["https://bloxcores.xyz"],
     featured: true,
   },
@@ -80,6 +90,7 @@ const NEXORIA_PROJECTS = [
     category: "Directory",
     type: "website",
     description: "A curated directory of the web — hundreds of sites and tools, organized.",
+    image: "/assets/previews/nexo-hub.jpg",
     featured: true,
   },
   {
@@ -91,9 +102,36 @@ const NEXORIA_PROJECTS = [
     description: "A custom Electron + Monaco code editor — multi-terminal tabs, integrated Git, and a built-in GitHub panel.",
     platform: "Windows · Linux",
     githubUrl: "https://github.com/itsnexoria/nexo-dev",
+    image: "/assets/previews/nexo-dev.jpg",
+    icon: "/assets/icons/nexo-dev.png",
     // downloadUrl: "https://github.com/itsnexoria/nexo-dev/releases", // uncomment once a public release exists
     // docsUrl: "https://...", // add if/when docs go up
     status: "development", // shows a static "In development" badge instead of a live online/offline check
+  },
+  {
+    id: "nexo-optimize",
+    name: "Nexo Optimize",
+    url: "https://github.com/itsnexoria/NexoOptimize",
+    category: "Software",
+    type: "software",
+    description: "An all-in-one Windows performance and system-maintenance suite — gaming optimization, network tools, storage cleanup, RAM/process/service management, and more.",
+    platform: "Windows",
+    githubUrl: "https://github.com/itsnexoria/NexoOptimize",
+    icon: "/assets/icons/nexo-optimize.png",
+    status: "development",
+  },
+  {
+    id: "nexo-browser",
+    name: "Nexo Browser",
+    url: "https://github.com/itsnexoria/nexo-browser",
+    category: "Software",
+    type: "software",
+    description: "An Electron shell for running several Google (or any) accounts side by side, each fully isolated, without the overhead of keeping every one fully live.",
+    platform: "Windows",
+    githubUrl: "https://github.com/itsnexoria/nexo-browser",
+    icon: "/assets/icons/nexo-browser.png",
+    image: "/assets/previews/nexo-browser.jpg",
+    status: "development",
   },
 ];
 
