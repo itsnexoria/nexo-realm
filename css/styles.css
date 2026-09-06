@@ -23,6 +23,7 @@
 
   /* type */
   --font-display: "Space Grotesk", "Inter", sans-serif;
+  --font-hero: "Russo One", "Space Grotesk", sans-serif;
   --font-body: "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
 
@@ -225,6 +226,28 @@ svg {
 /* =========================================================
    nav
    ========================================================= */
+/* HUD-style frame — a thin glowing chamfered border pinned to the
+   viewport, echoing the "screen bezel" look of the reference design.
+   Purely decorative, sits above the background but below all real
+   content, and never intercepts clicks. */
+.hud-frame {
+  position: fixed;
+  inset: 14px;
+  z-index: 40;
+  pointer-events: none;
+  border: 1px solid rgba(255, 61, 34, 0.28);
+  clip-path: polygon(
+    28px 0, calc(100% - 28px) 0, 100% 28px, 100% calc(100% - 28px),
+    calc(100% - 28px) 100%, 28px 100%, 0 calc(100% - 28px), 0 28px
+  );
+  box-shadow: 0 0 30px rgba(255, 51, 25, 0.08), inset 0 0 40px rgba(255, 51, 25, 0.05);
+}
+@media (max-width: 640px) {
+  .hud-frame {
+    display: none;
+  }
+}
+
 .nav {
   position: fixed;
   top: 0;
@@ -285,6 +308,9 @@ svg {
 .nav-links a:hover::after,
 .nav-links a:focus-visible::after {
   transform: scaleX(1);
+}
+.nav-links a[aria-current="true"] {
+  color: var(--red-ember);
 }
 .nav-links a[aria-current="true"]::after {
   transform: scaleX(1);
@@ -487,14 +513,16 @@ body.menu-open {
   position: absolute;
   inset: 0;
   border-radius: 50%;
-  background: radial-gradient(circle at 34% 30%, #4a0d08 0%, #2a0704 22%, #150302 46%, #050506 68%, transparent 78%),
-    radial-gradient(circle at 60% 65%, rgba(255, 61, 34, 0.35), transparent 55%),
-    radial-gradient(circle at 70% 20%, rgba(255, 106, 69, 0.25), transparent 40%);
-  box-shadow: 0 0 160px 40px rgba(255, 51, 25, 0.14), inset -60px -40px 120px rgba(0, 0, 0, 0.75),
-    inset 40px 30px 90px rgba(255, 90, 60, 0.12);
-  filter: saturate(1.1);
+  background: radial-gradient(circle at 32% 28%, #6e130c 0%, #3a0906 20%, #1c0402 42%, #070202 64%, transparent 76%),
+    radial-gradient(circle at 66% 70%, rgba(255, 61, 34, 0.32), transparent 52%),
+    radial-gradient(circle at 74% 18%, rgba(255, 106, 69, 0.28), transparent 38%),
+    radial-gradient(circle at 78% 82%, rgba(0, 0, 0, 0.9), transparent 46%);
+  box-shadow: 0 0 180px 50px rgba(255, 51, 25, 0.16), inset -70px -50px 140px rgba(0, 0, 0, 0.82),
+    inset 46px 34px 100px rgba(255, 90, 60, 0.14);
+  filter: saturate(1.15);
 }
 .hero-planet-body::before {
+  /* craters */
   content: "";
   position: absolute;
   inset: 0;
@@ -505,6 +533,19 @@ body.menu-open {
     radial-gradient(circle at 70% 55%, rgba(0, 0, 0, 0.35) 0 2.4%, transparent 3%);
   mix-blend-mode: overlay;
 }
+.hero-planet-body::after {
+  /* glowing fissure lines across the surface */
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background-image:
+    radial-gradient(ellipse 46% 2% at 38% 40%, rgba(255, 106, 69, 0.55), transparent 70%),
+    radial-gradient(ellipse 30% 1.6% at 58% 58%, rgba(255, 80, 50, 0.5), transparent 70%),
+    radial-gradient(ellipse 36% 1.4% at 30% 62%, rgba(255, 60, 34, 0.4), transparent 70%);
+  filter: blur(0.4px);
+  mix-blend-mode: screen;
+}
 .hero-planet-ring {
   position: absolute;
   top: 12%;
@@ -514,6 +555,36 @@ body.menu-open {
   border: 1px solid rgba(255, 106, 69, 0.3);
   border-radius: 50%;
   transform: rotate(-9deg);
+}
+.hero-planet-streak {
+  position: absolute;
+  top: 38%;
+  left: -20%;
+  width: 140%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255, 140, 100, 0.7) 45%, rgba(255, 140, 100, 0.9) 55%, transparent);
+  box-shadow: 0 0 8px 1px rgba(255, 106, 69, 0.5);
+  transform: rotate(-16deg);
+}
+.hero-horizon {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: clamp(120px, 18vh, 220px);
+  z-index: -1;
+  pointer-events: none;
+  background: linear-gradient(0deg, rgba(255, 51, 25, 0.16) 0%, rgba(255, 51, 25, 0.05) 40%, transparent 80%);
+}
+.hero-horizon::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255, 106, 69, 0.55) 30%, rgba(255, 106, 69, 0.55) 70%, transparent);
+  box-shadow: 0 0 20px 2px rgba(255, 61, 34, 0.35);
 }
 @media (max-width: 900px) {
   .hero-planet {
@@ -626,27 +697,27 @@ body.menu-open {
   }
 }
 .hero-title {
-  font-family: var(--font-display);
-  font-weight: 700;
-  font-style: italic;
-  font-size: clamp(56px, 12vw, 148px);
-  line-height: 0.88;
-  letter-spacing: -0.03em;
+  font-family: var(--font-hero);
+  font-weight: 400;
+  font-style: normal;
+  font-size: clamp(52px, 11.5vw, 138px);
+  line-height: 0.86;
+  letter-spacing: -0.01em;
   white-space: nowrap;
 }
 .hero-title .w {
-  background: linear-gradient(180deg, #ffffff 0%, #f3f2ef 50%, #a8a7ac 100%);
+  background: linear-gradient(180deg, #ffffff 0%, #f3f2ef 45%, #8f8e94 100%);
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
-  filter: drop-shadow(0 4px 0 rgba(0, 0, 0, 0.35));
+  filter: drop-shadow(2px 3px 0 rgba(0, 0, 0, 0.5)) drop-shadow(4px 6px 10px rgba(0, 0, 0, 0.4));
 }
 .hero-title .r {
-  background: linear-gradient(180deg, var(--red-ember) 0%, var(--red) 45%, var(--red-deep) 100%);
+  background: linear-gradient(180deg, var(--red-ember) 0%, var(--red) 40%, var(--red-deep) 100%);
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
-  filter: drop-shadow(0 4px 0 rgba(0, 0, 0, 0.45)) drop-shadow(0 0 40px rgba(255, 51, 25, 0.35));
+  filter: drop-shadow(2px 3px 0 rgba(0, 0, 0, 0.5)) drop-shadow(0 0 46px rgba(255, 51, 25, 0.55));
 }
 @media (max-width: 640px) {
   .hero-title {
@@ -829,8 +900,19 @@ body.menu-open {
 .hero-nav-panel-title {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 9px;
   color: var(--red-ember);
+}
+.hero-nav-panel-title .icon-badge {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  border: 1px solid var(--border-red);
+  background: var(--red-dim);
+  flex-shrink: 0;
 }
 .hero-nav-panel-title .eyebrow::before {
   display: none;

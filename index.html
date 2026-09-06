@@ -30,7 +30,7 @@
 <!-- fonts -->
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=Russo+One&family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
 
 <link rel="stylesheet" href="/css/styles.css" />
 
@@ -48,6 +48,7 @@
 <a class="skip-link" href="#main">Skip to content</a>
 
 <div class="bg-fixed"><div class="bg-grid"></div><div class="bg-noise"></div></div>
+<div class="hud-frame" aria-hidden="true"></div>
 
 <!-- ============ NAV ============ -->
 <header class="nav" id="site-nav">
@@ -83,8 +84,10 @@
     <div class="hero-glow" aria-hidden="true"></div>
     <div class="hero-planet" aria-hidden="true">
       <span class="hero-planet-ring"></span>
+      <span class="hero-planet-streak"></span>
       <span class="hero-planet-body"></span>
     </div>
+    <div class="hero-horizon" aria-hidden="true"></div>
 
     <svg class="orbit-field" id="orbit-field" viewBox="0 0 1400 1400" aria-hidden="true" focusable="false">
       <ellipse class="orbit-ring" cx="700" cy="700" rx="400" ry="400"></ellipse>
@@ -130,7 +133,9 @@
       <aside class="hero-nav-panel" id="hero-nav-panel" aria-label="Quick links to ecosystem projects">
         <div class="hero-nav-panel-head">
           <span class="hero-nav-panel-title">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M13 2 4 14h6l-1 8 9-12h-6l1-8Z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <span class="icon-badge">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M13 2 4 14h6l-1 8 9-12h-6l1-8Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </span>
             <span class="eyebrow" style="margin:0;">The orbit</span>
           </span>
           <span class="hero-nav-panel-count" id="hero-nav-count">
