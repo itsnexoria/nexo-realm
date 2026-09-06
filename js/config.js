@@ -53,6 +53,8 @@ const NEXORIA_PROJECTS = [
     description: "Grow your socials by completing tasks for other creators — earn points, then spend them on real followers, likes, views, and Discord members.",
     image: "/assets/previews/nexo-boost.jpg",
     featured: true,
+    tagline: "Boosting Services",
+    panelIcon: "bolt",
   },
   {
     id: "nexosites",
@@ -62,6 +64,8 @@ const NEXORIA_PROJECTS = [
     type: "website",
     description: "Premium, fast, mobile-ready websites for businesses — you buy the domain, NexoSites handles everything else.",
     image: "/assets/previews/nexosites.jpg",
+    tagline: "Web Directory",
+    panelIcon: "globe",
   },
   {
     id: "watch-log",
@@ -71,6 +75,8 @@ const NEXORIA_PROJECTS = [
     type: "tool",
     description: "A personal anime viewing record — track titles, episodes watched, and watch time.",
     image: "/assets/previews/watch-log.jpg",
+    tagline: "Live Logs",
+    panelIcon: "file",
   },
   {
     id: "bloxcore",
@@ -82,6 +88,8 @@ const NEXORIA_PROJECTS = [
     image: "/assets/previews/bloxcore.jpg",
     aliases: ["https://bloxcores.xyz"],
     featured: true,
+    tagline: "Roblox Platform",
+    panelIcon: "box",
   },
   {
     id: "nexo-hub",
@@ -92,6 +100,8 @@ const NEXORIA_PROJECTS = [
     description: "A curated directory of the web — hundreds of sites and tools, organized.",
     image: "/assets/previews/nexo-hub.jpg",
     featured: true,
+    tagline: "Main Hub",
+    panelIcon: "link",
   },
   {
     id: "nexo-dev",
@@ -107,6 +117,8 @@ const NEXORIA_PROJECTS = [
     // downloadUrl: "https://github.com/itsnexoria/nexo-dev/releases", // uncomment once a public release exists
     // docsUrl: "https://...", // add if/when docs go up
     status: "development", // shows a static "In development" badge instead of a live online/offline check
+    tagline: "Development",
+    panelIcon: "code",
   },
   {
     id: "nexo-optimize",
@@ -119,6 +131,8 @@ const NEXORIA_PROJECTS = [
     githubUrl: "https://github.com/itsnexoria/NexoOptimize",
     icon: "/assets/icons/nexo-optimize.png",
     status: "development",
+    tagline: "Performance Tools",
+    panelIcon: "gauge",
   },
   {
     id: "nexo-browser",
@@ -132,6 +146,8 @@ const NEXORIA_PROJECTS = [
     icon: "/assets/icons/nexo-browser.png",
     image: "/assets/previews/nexo-browser.jpg",
     status: "development",
+    tagline: "Multi-Account Shell",
+    panelIcon: "layers",
   },
 ];
 
@@ -157,12 +173,11 @@ const NEXORIA_CONTACT = {
 // ---------------------------------------------------------------
 function getEcosystemStats() {
   const live = NEXORIA_PROJECTS.filter((p) => !p.self);
-  const categories = new Set(live.map((p) => p.category)).size;
   return [
-    { value: live.length, suffix: "+", label: "Projects" },
-    { value: categories, suffix: "", label: "Categories" },
-    { value: "24/7", suffix: "", label: "Building", isText: true },
-    { value: "∞", suffix: "", label: "Ideas", isText: true },
+    { value: live.length, suffix: "+", label: "Live projects", icon: "globe" },
+    { value: 1, suffix: "", label: "Ecosystem", icon: "users" },
+    { value: "100%", suffix: "", label: "Built by me", isText: true, icon: "bolt" },
+    { value: "24/7", suffix: "", label: "Uptime", isText: true, icon: "shield" },
   ];
 }
 

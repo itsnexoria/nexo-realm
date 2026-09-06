@@ -81,6 +81,10 @@
   <!-- ============ HERO ============ -->
   <section class="hero" id="top">
     <div class="hero-glow" aria-hidden="true"></div>
+    <div class="hero-planet" aria-hidden="true">
+      <span class="hero-planet-ring"></span>
+      <span class="hero-planet-body"></span>
+    </div>
 
     <svg class="orbit-field" id="orbit-field" viewBox="0 0 1400 1400" aria-hidden="true" focusable="false">
       <ellipse class="orbit-ring" cx="700" cy="700" rx="400" ry="400"></ellipse>
@@ -95,30 +99,40 @@
 
     <div class="wrap hero-layout">
       <div class="hero-inner">
-        <span class="hero-badge" id="hero-status-pill">
-          <span class="dot checking" style="width:6px;height:6px;"></span>
-          <span data-role="label">CHECKING ECOSYSTEM…</span>
+        <span class="hero-badge-wrap">
+          <span class="hero-badge" id="hero-status-pill">
+            <span class="dot checking" style="width:6px;height:6px;"></span>
+            <span data-role="label">CHECKING ECOSYSTEM…</span>
+          </span>
+          <span class="hero-badge-stripes" aria-hidden="true"></span>
         </span>
         <h1 class="hero-title">
-          NEXORIA
-          <span>Everything I build. One ecosystem.</span>
+          <span class="w">NEXO</span><span class="r">RIA</span>
         </h1>
+        <p class="hero-tagline"><span class="w">Everything I build. One</span> <span class="r">ecosystem.</span></p>
         <p class="hero-desc">
           Websites, tools, and software, built solo and connected by one system.
           This is the command center — explore what's live, what's building, and where to find it.
         </p>
         <div class="hero-ctas">
           <a href="#projects" class="btn btn-primary">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 15c3 0 5.5-2 6.8-6.8C15 6.9 11 8.5 9 12M12 15c-1.2 2-3 3-6 3.4C6.4 15.4 7.4 13.6 9.4 12M12 15c-1-1-1.5-2-1.5-3M6.2 17.4c-.7.7-1 2.4-1 2.4s1.7-.3 2.4-1" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
             Explore the ecosystem
             <svg width="15" height="15" viewBox="0 0 15 15" fill="none" aria-hidden="true"><path d="M3.5 11.5L11.5 3.5M11.5 3.5H5M11.5 3.5V10" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
           </a>
-          <a href="#about" class="btn btn-ghost">About Nexoria</a>
+          <a href="#about" class="btn btn-ghost">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.6"/><path d="M12 11v5.5M12 8v.01" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+            About Nexoria
+          </a>
         </div>
       </div>
 
       <aside class="hero-nav-panel" id="hero-nav-panel" aria-label="Quick links to ecosystem projects">
         <div class="hero-nav-panel-head">
-          <span class="eyebrow" style="margin:0;">The orbit</span>
+          <span class="hero-nav-panel-title">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M13 2 4 14h6l-1 8 9-12h-6l1-8Z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <span class="eyebrow" style="margin:0;">The orbit</span>
+          </span>
           <span class="hero-nav-panel-count" id="hero-nav-count">
             <span class="dot checking" style="width:5px;height:5px;"></span>
             <span data-role="label">Checking</span>
@@ -136,7 +150,17 @@
 
   <!-- ============ STATS ============ -->
   <section class="stats">
-    <div class="wrap stats-grid" id="stats-grid"></div>
+    <div class="wrap stats-bar">
+      <div class="stats-grid" id="stats-grid"></div>
+      <div class="stats-tags" aria-hidden="true">
+        <span class="stats-stripes"></span>
+        <span>BUILD</span>
+        <span class="slash">/</span>
+        <span>IMPROVE</span>
+        <span class="slash">/</span>
+        <span>GROW</span>
+      </div>
+    </div>
   </section>
 
   <!-- ============ PROJECTS ============ -->

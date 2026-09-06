@@ -13,6 +13,21 @@
   // -------------------------------------------------------
   const $ = (sel, ctx = document) => ctx.querySelector(sel);
   const $$ = (sel, ctx = document) => Array.from(ctx.querySelectorAll(sel));
+  // Small line-icon set used in the hero orbit panel + stats bar. Kept as
+  // inline SVG strings (not separate files) so they inherit currentColor
+  // and need no extra network requests.
+  const PANEL_ICONS = {
+    bolt: '<svg viewBox="0 0 24 24" fill="none" width="15" height="15"><path d="M13 2 4 14h6l-1 8 9-12h-6l1-8Z" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+    globe: '<svg viewBox="0 0 24 24" fill="none" width="15" height="15"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.7"/><path d="M3 12h18M12 3c2.5 2.6 3.8 5.7 3.8 9s-1.3 6.4-3.8 9c-2.5-2.6-3.8-5.7-3.8-9s1.3-6.4 3.8-9Z" stroke="currentColor" stroke-width="1.7"/></svg>',
+    file: '<svg viewBox="0 0 24 24" fill="none" width="15" height="15"><path d="M6 2.5h8l4 4V21a.5.5 0 0 1-.5.5h-11A.5.5 0 0 1 6 21V3a.5.5 0 0 1 .5-.5Z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/><path d="M14 2.5V7h4M9 12h6M9 16h6" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>',
+    box: '<svg viewBox="0 0 24 24" fill="none" width="15" height="15"><path d="M12 2 3 7v10l9 5 9-5V7l-9-5Z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/><path d="M3 7l9 5 9-5M12 12v10" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></svg>',
+    link: '<svg viewBox="0 0 24 24" fill="none" width="15" height="15"><path d="M9.5 14.5 14.5 9.5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/><path d="M11 6.5 12.6 5A4 4 0 1 1 18.3 10.6L16.8 12M13 17.5 11.4 19A4 4 0 1 1 5.7 13.4L7.2 12" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>',
+    code: '<svg viewBox="0 0 24 24" fill="none" width="15" height="15"><path d="M9 8 4.5 12 9 16M15 8l4.5 4-4.5 4" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+    gauge: '<svg viewBox="0 0 24 24" fill="none" width="15" height="15"><path d="M4 15a8 8 0 1 1 16 0" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/><path d="M12 15 16 10" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/><path d="M12 15h.01" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>',
+    layers: '<svg viewBox="0 0 24 24" fill="none" width="15" height="15"><path d="M12 3 3 8l9 5 9-5-9-5Z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/><path d="M3 12l9 5 9-5M3 16l9 5 9-5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+    users: '<svg viewBox="0 0 24 24" fill="none" width="17" height="17"><circle cx="9" cy="8" r="3.2" stroke="currentColor" stroke-width="1.7"/><path d="M3.5 20c.7-3.4 3-5.3 5.5-5.3s4.8 1.9 5.5 5.3M15.5 8.7a3.2 3.2 0 1 1 3-4.4M15 14.9c2.3.3 4 2.1 4.6 5.1" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>',
+    shield: '<svg viewBox="0 0 24 24" fill="none" width="17" height="17"><path d="M12 3l7 3v6c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V6l7-3Z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/><path d="M9 12l2 2 4-4" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+  };
   const hostOf = (url) => {
     try {
       return new URL(url).hostname.replace(/^www\./, "");
@@ -114,6 +129,11 @@
     getEcosystemStats().forEach((stat) => {
       const el = document.createElement("div");
       el.className = "stat reveal";
+      const iconEl = document.createElement("span");
+      iconEl.className = "stat-icon";
+      iconEl.innerHTML = PANEL_ICONS[stat.icon] || "";
+      const textEl = document.createElement("div");
+      textEl.className = "stat-text";
       const valueEl = document.createElement("div");
       valueEl.className = "stat-value";
       if (stat.isText) {
@@ -124,7 +144,8 @@
       const labelEl = document.createElement("div");
       labelEl.className = "stat-label";
       labelEl.textContent = stat.label;
-      el.append(valueEl, labelEl);
+      textEl.append(valueEl, labelEl);
+      el.append(iconEl, textEl);
       grid.appendChild(el);
     });
 
@@ -207,8 +228,10 @@
       a.rel = "noopener noreferrer";
       a.innerHTML = `
         <span class="hero-nav-link-index">${String(i + 1).padStart(2, "0")}</span>
+        <span class="hero-nav-link-icon">${PANEL_ICONS[project.panelIcon] || PANEL_ICONS.link}</span>
         <span class="hero-nav-link-text">
           <span class="name">${project.name}</span>
+          <span class="sub">${project.tagline || project.category}</span>
         </span>
         <span class="dot checking" data-role="dot"></span>
         <svg class="hero-nav-link-arrow" width="12" height="12" viewBox="0 0 13 13" fill="none" aria-hidden="true"><path d="M3 10L10 3M10 3H4.5M10 3V8.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
