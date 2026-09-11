@@ -45,8 +45,8 @@ const NEXORIA_PROJECTS = [
     self: true, // hide from grid + status checks, it's this site
   },
   {
-    id: "nexo-boost",
-    name: "Nexo Boost",
+    id: "next-boost",
+    name: "Next Boost",
     url: "https://boost.nexorealm.org",
     category: "Tools",
     type: "tool",
@@ -75,7 +75,7 @@ const NEXORIA_PROJECTS = [
   {
     id: "bloxcore",
     name: "BloxCore",
-    url: "https://blox.nexorealm.org",
+    url: "https://bloxcores.com",
     category: "Gaming",
     type: "website",
     description: "A Blox Fruits community board — complete bounties, submit proof, and climb the ranks from Rookie to Pirate King.",
@@ -104,9 +104,9 @@ const NEXORIA_PROJECTS = [
     githubUrl: "https://github.com/itsnexoria/nexo-dev",
     image: "/assets/previews/nexo-dev.jpg",
     icon: "/assets/icons/nexo-dev.png",
-    // downloadUrl: "https://github.com/itsnexoria/nexo-dev/releases", // uncomment once a public release exists
+    downloadUrl: "https://dev.nexorealm.org/", // uncomment once a public release exists
     // docsUrl: "https://...", // add if/when docs go up
-    status: "development", // shows a static "In development" badge instead of a live online/offline check
+    status: "", // shows a static "In development" badge instead of a live online/offline check
   },
   {
     id: "nexo-optimize",
@@ -127,11 +127,24 @@ const NEXORIA_PROJECTS = [
     category: "Software",
     type: "software",
     description: "An Electron shell for running several Google (or any) accounts side by side, each fully isolated, without the overhead of keeping every one fully live.",
-    platform: "Windows",
+    platform: "Windows - Linux",
     githubUrl: "https://github.com/itsnexoria/nexo-browser",
     icon: "/assets/icons/nexo-browser.png",
     image: "/assets/previews/nexo-browser.jpg",
-    status: "development",
+    status: "",
+  },
+  {
+    id: "rexio",
+    name: "Rexio",
+    url: "https://github.com/itsnexoria/rexio",
+    category: "Software",
+    type: "software",
+    description: "A Roblox account manager for Linux and Windows. Add accounts once, then launch straight into the game logged in as whichever one you click — no re-entering passwords, no browser round-trip.",
+    platform: "Windows · Linux",
+    githubUrl: "https://github.com/itsnexoria/rexio",
+    icon: "/assets/icons/Rexiologo.png",
+    image: "/assets/previews/rexio.png",
+    status: "Live",
   },
 ];
 
