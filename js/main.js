@@ -175,7 +175,7 @@
     // stay pure ambient decoration and never collide with real copy.
     // No text labels here — this is a background effect, not a second nav.
     const radii = [560, 660];
-    const items = projects.slice(0, 6);
+    const items = projects;
     items.forEach((p, i) => {
       const radius = radii[i % radii.length];
       const angle = (i / items.length) * Math.PI * 2 + 0.35;
@@ -197,7 +197,7 @@
   function initHeroNavPanel() {
     const list = $("#hero-nav-list");
     if (!list) return;
-    const items = projects.slice(0, 8);
+    const items = projects;
 
     items.forEach((project, i) => {
       const a = document.createElement("a");
@@ -891,8 +891,35 @@
     sections.forEach((s) => io.observe(s));
   }
 
+  // Emits one SoftwareApplication JSON-LD block per software-type project,
+  // generated straight from config.js so it can never drift out of sync
+  // with what's actually on the page (unlike hand-written schema in the HTML).
+  function initSoftwareSchema() {
+    const software = NEXORIA_PROJECTS.filter((p) => p.type === "software" && !p.self);
+    if (!software.length) return;
+    software.forEach((project) => {
+      const schema = {
+        "@context": "https://schema.org",
+        "@type": "SoftwareApplication",
+        name: project.name,
+        description: project.description || undefined,
+        url: project.githubUrl || project.url,
+        downloadUrl: project.downloadUrl || project.githubUrl || undefined,
+        operatingSystem: project.platform || undefined,
+        applicationCategory: "UtilitiesApplication",
+        author: { "@type": "Organization", name: "Nexoria", url: "https://nexorealm.org" },
+      };
+      Object.keys(schema).forEach((k) => schema[k] === undefined && delete schema[k]);
+      const script = document.createElement("script");
+      script.type = "application/ld+json";
+      script.textContent = JSON.stringify(schema);
+      document.head.appendChild(script);
+    });
+  }
+
   document.addEventListener("DOMContentLoaded", () => {
     initNav();
+    initSoftwareSchema();
     initOrbit();
     initHeroNavPanel();
     initStats();
